@@ -1,0 +1,30 @@
+@html.extend('layout',function(model){
+
+@html.block("css",function(){
+
+})
+@html.block("js",function(){
+
+})
+
+<div class="container">
+
+@html.block("main",function(model){
+
+<h1>@model.title</h1>
+
+
+})
+
+</div>
+
+})
+
+<script type="text/javascript">
+
+$(document).ready(function(){
+
+
+});
+
+</script>
