@@ -11,23 +11,27 @@
 var setupRoutes=function(app){
     
       app.get("/",function(req,res){
-           
            res.render("home",{title:"home page"});
-           res.end();
            
         });   
      
+     app.get("/index/",function(req,res){
+           
+           res.render("index",{title:"index page"});
+           
+           
+        });   
      app.get("/about/",function(req,res){
            
            res.render("about",{title:"about page"});
-           res.end();
+           
            
         });   
         
         app.get("/contact/",function(req,res){
            
            res.render("contact",{title:"contact page"});
-           res.end();
+           
            
         });   
         // api

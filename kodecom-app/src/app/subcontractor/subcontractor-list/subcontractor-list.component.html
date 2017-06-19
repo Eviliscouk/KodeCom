@@ -1,0 +1,18 @@
+<div class="row">
+  <div class="col-xs-12">
+    <button class="btn btn-success" (click)="onNewSubContractor()">New SubContractor</button>
+  </div>
+</div>
+<hr>
+<div class="row">
+  <div class="col-xs-12">
+    <div class="pre-scrollable">
+      <input type="text" id="inputDisplayName" class="form-control" [(ngModel)]="diplayNameFilter">
+      <app-subcontractor-item 
+        *ngFor="let contractorEl of subcontractors | filterDisplayNamePipe: diplayNameFilter; let i = index"
+        [subcontractor]="contractorEl"
+        [index]="i"
+        ></app-subcontractor-item>
+      </div>
+  </div>
+</div>

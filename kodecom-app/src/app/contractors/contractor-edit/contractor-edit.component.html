@@ -1,0 +1,79 @@
+ <div class="row">
+        <div class="col-xs-12">
+          <button
+            class="btn btn-success btn-sm"
+            type="submit"
+            [disabled]="!f.valid || editMode && !f.dirty">{{ editMode ? 'Update' : 'Add' }}</button>
+          <button
+            class="btn btn-danger btn-sm"
+            type="button"
+            (click)="onDelete()"
+            *ngIf="editMode">Delete</button>
+          <button class="btn btn-primary" type="button" (click)="onClear()" *ngIf="!editMode">Clear</button>
+        </div>
+      </div>
+      <hr>
+
+<div class="row">
+  <div class="col-xs-12 pre-scrollable">
+    <form (ngSubmit)="onSubmit(f)" #f="ngForm" >
+      <div class="row">
+        <div class="col-xs-12">
+            <div class="panel panel-default">
+              <div class="panel-heading">Name</div>
+                  <div class="panel-body">
+                    <div class="col-sm-7 form-group">
+                      <label for="companyName">Company Name</label>
+                      <input type="text" id="companyName" class="form-control" name="companyName" ngModel required>
+                      <label for="firstName">First Name</label>
+                      <input type="text" id="firstName" class="form-control" name="firstName" ngModel required>
+                      <label for="surname">Surname</label>
+                      <input type="text" id="surame" class="form-control" name="surname" ngModel required>
+                      </div>
+                  </div>
+            </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-xs-12">
+            <div class="panel panel-default">
+              <div class="panel-heading">Address</div>
+                  <div class="panel-body">
+                    <div class="col-sm-7 form-group">
+                      <label for="address">Address</label>
+                      <input type="text" id="address" class="form-control" name="address" ngModel required>
+                      <label for="town">Town</label>
+                      <input type="text" id="town" class="form-control" name="town" ngModel required>
+                      <label for="county">County</label>
+                      <input type="text" id="county" class="form-control" name="county" ngModel required>
+                      <label for="postcode">Postcode</label>
+                      <input type="text" id="postcode" class="form-control" name="postcode" ngModel required>
+                      </div>
+                  </div>
+            </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-xs-12">
+            <div class="panel panel-default">
+              <div class="panel-heading">Contact</div>
+                  <div class="panel-body">
+                    <div class="col-sm-7 form-group">
+                      <label for="phone">Phone</label>
+                      <input type="text" id="phone" class="form-control" name="phone" ngModel required>
+                      <label for="mobPhone">Mobile</label>
+                      <input type="text" id="mobPhone" class="form-control" name="mobPhone" ngModel required>
+                      <label for="fax">Fax</label>
+                      <input type="text" id="fax" class="form-control" name="fax" ngModel required>
+                      <label for="email">Email</label>
+                      <input type="text" id="email" class="form-control" name="email" ngModel required email>
+                    </div>
+                  </div>
+            </div>
+        </div>
+      </div>
+      
+    </form>
+  </div>
+</div>
+

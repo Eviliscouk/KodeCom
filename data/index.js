@@ -1,8 +1,27 @@
 (function(dal){
 
-dal.getUsers= function(){
+
+
+dal.getUsers= function(cb){
+
+    var ADODB = require('node-adodb');
+    var connection = ADODB.open('Provider=Microsoft.Jet.OLEDB.4.0;Data Source=../data/KODE_DATABASE.accdb;');
+    console.log(connection);
     
-    return "users list";
+connection
+  .query('SELECT * FROM Users')
+  .on('done', function(data) {
+      cb(null,data);
+  //  console.log('result:', JSON.stringify(data, null, 2));
+    
+    
+  })
+  .on('fail', function(error) {
+    // TODO something
+    cb(error,null);
+  });
+    
+    //return "users list";
     
 }
 

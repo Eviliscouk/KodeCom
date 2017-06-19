@@ -1,0 +1,40 @@
+<div class="row">
+  <div class="col-xs-12">
+      <button class="btn btn-success btn-sm" (click)="onEditContractor()">Edit Contractor</button>
+      <button class="btn btn-info btn-sm" (click)="onViewSubcontractors()">View SubContractors</button>
+    </div>
+</div>
+<hr>
+<div class="row">
+  <div class="col-xs-12">
+  <div class="panel panel-default">
+  <div class="panel-heading">{{ contractor.firstName }} {{ contractor.surname }}</div>
+    <div class="panel-body pre-scrollable">
+          <dl class="dl-horizontal">
+            <dt>Company</dt>
+            <dd>{{contractor.companyName}}</dd>
+            <dt>Address:</dt>
+            <dd>{{ contractor.address }}, {{ contractor.town }}, {{contractor.county}}, {{ contractor.postcode }}</dd>
+            <dt>Phone Number:</dt>
+            <dd>{{ contractor.phone }}</dd>
+            <dt>Mobile Number:</dt>
+            <dd>{{ contractor.mobPhone }}</dd>
+            <dt>Mobile Number:</dt>
+            <dd>{{ contractor.mobPhone }}</dd>
+            <dt>Fax:</dt>
+            <dd>{{ contractor.fax }}</dd>
+            <dt>Email:</dt>
+            <dd>{{ contractor.email }}</dd>
+            <dt>UTR:</dt>
+            <dd>{{ contractor.utr }}</dd>
+            <dt>Fee:</dt>
+            <dd>{{ contractor.fee }}</dd>
+            <dt>TLC Ins:</dt>
+            <dd>{{ contractor.tlcIns }}</dd>
+            <dt>Payer Type</dt>
+            <dd>{{ contractor.payerType }}</dd>
+          </dl>
+      </div>
+  </div>
+  </div>
+</div>

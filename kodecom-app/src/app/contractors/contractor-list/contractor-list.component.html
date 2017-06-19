@@ -1,0 +1,22 @@
+<div class="row">
+  <div class="col-md-12">
+    <button class="btn btn-success btn-sm" (click)="onNewContractor()">New Contractor</button>
+  </div>
+</div>
+<hr>
+<div class="row">
+  <div class="col-xs-12">
+    <input type="text" id="inputDisplayName" class="form-control" [(ngModel)]="diplayNameFilter"/>
+  </div>
+</div>
+<div class="row">
+  <div class="col-xs-12">
+    <div class="list-group pre-scrollable">
+      <app-contractor-item 
+        *ngFor="let contractorEl of contractors | filterDisplayNamePipe: diplayNameFilter; let i = index"
+        [contractor]="contractorEl"
+        [index]="i"
+        ></app-contractor-item>
+      </div>
+  </div>
+</div>

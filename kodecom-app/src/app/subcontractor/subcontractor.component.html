@@ -1,0 +1,12 @@
+
+<h1> {{ contractorName }} </h1>
+<button class="btn btn-success" (click)="onViewContractor()">View Contractor</button>
+<br>
+<div class="row">
+  <div class="col-md-3">
+    <app-subcontractor-list></app-subcontractor-list>
+  </div>
+  <div class="col-md-9">
+    <router-outlet></router-outlet>
+  </div>
+</div>

@@ -1,0 +1,14 @@
+.container {
+  background: black;
+  height:100%;
+  overflow-y: scroll;
+}
+
+.fill{
+    width:100%;
+    height:100%;
+    min-height:100%;
+    background-color:#990000;
+    padding:10px;
+    color:#efefef;
+}
