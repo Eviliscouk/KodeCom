@@ -1,0 +1,134 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<title>@model.title</title>
+<style type="text/css" media="all">
+body {
+  font-family:Tahoma;  
+  font-size:12px;
+  height:297mm;
+    width:210mm;
+}
+img {
+  border:0;
+}
+
+#page {
+   margin:0 auto;
+  padding:0px;
+  width:700px;
+
+}
+
+#logo {
+  float:left;
+  margin:0;
+}
+
+#address {
+  height:192px;
+  margin-left:250px;
+  margin-top:50px;
+  float:right;
+}
+
+#content {
+padding-top:200px;
+}
+
+table {
+  width:100%;
+  table-layout:auto
+  
+}
+
+th {
+padding:0px;
+font-size:.85em;
+text-align:left;
+}
+td {
+padding:0px;
+font-size:.70em;
+white-space: nowrap;
+}
+
+
+table td.absorbing-column {
+    width: 100%;
+        text-align:center; 
+    vertical-align:middle;
+        word-wrap:break-word
+}
+
+
+tr.odd {
+  background:#e1ffe1;
+}
+
+.special div {
+    border-bottom: 2px solid black;
+    margin: -2px;
+}
+
+.topBottom div {
+    border-bottom: 2px solid black;
+        border-top: 2px solid black;
+    margin: -2px;
+}
+
+.alignRight p {
+text-align:right;}
+
+.box div {
+
+    border: 2px solid black;
+    
+}
+
+dl {border-top:1px solid black;  border-bottom:1px solid black;}
+dt { float: left; clear: left; font-weight: bold; font-size:.70em;}
+dd { float: right; font-size:.70em;}
+
+table.topAndBottom {
+  border-top:1px solid black;
+  border-bottom:1px solid black;
+}
+
+</style>
+<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+<link rel="stylesheet" href="print.css" type="text/css" media="print">
+</head>
+
+<body>
+    @html.block("main")
+    
+    @if (model.renderOption.mode == 'html' ){
+    <div class="row">
+        <a href='#' class='export-pdf'>Download</a>
+    </div>
+    }
+</body>
+</html>    
+<script type="text/javascript" >
+    
+    $(document).ready(function(){
+       
+     ($('.report-url').data('mode') =='pdf') ? $('.export-pdf').hide():$('.export-pdf').show();
+    
+       
+        $('.export-pdf').on('click',function(){
+          
+          var reportUrl = $(this).data('url');
+          alert(reportUrl);
+          
+          var url ='https://kode-com-kerrjp.c9users.io/report?report=http://kode-com-kerrjp.c9users.io' + reportUrl +'/pdf';
+          //var url ='https://kode-com-kerrjp.c9users.io/report?report=' + reportUrl +'/pdf';
+          
+            window.open(url);     
+           
+           return false;
+        });
+    })
+    
+</script>

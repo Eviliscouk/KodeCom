@@ -1,0 +1,108 @@
+@html.extend('./reports/layout',function(model){
+
+@html.block("main",function(model){
+
+<div id="page">
+<div class="report-url" data-url="@model.url"/>
+  <div id="logo"> <img src="../../../images/KodeCom.png" alt="Kodecom"></div><!--end logo-->
+  
+  <div id="address">
+    <p><strong>Contractor Weekly Remittance</strong><br />
+			<strong>For          :</strong>@model.con_displayName<br />
+		<strong>Payment Date :</strong>@model.PaymentDate<br />
+		<strong>Week Ending  :</strong>@model.WeekEnding<br />
+		<strong>Period       :</strong>@model.Period<br />
+    	</p>
+  </div>
+  <div id="content">
+  <p>
+    <strong>Summary of Instructions Received:</strong><br />
+	</p>
+	<hr>
+    <table>
+      <tr>
+      	<th><strong>Name</strong></th>
+      	<th><strong>Verification No</strong></th>
+      	<th><strong>Rate</strong></th>
+      	<th><strong>TLC Ins</strong></th>
+      	<th><strong>Gross</strong></th>
+      	<th><strong>Materials</strong></th>
+      	<th><strong>Taxable</strong></th>
+      	<th><strong>Tax</strong></th>
+      	<th><strong>VAT</strong></th>
+      	<th><strong>Net</strong></th>
+      	<th><strong>Fee</strong></th>
+      	<th><strong>Payable</strong></th>
+      </tr>
+	  
+	 @{	var isOdd = true; }
+	 @model.items.forEach(function(item){ 
+	 
+	 	<tr class="@(isOdd ? 'odd' : '')">
+		  <td> @item.sub_displayName </td>  
+      <td> @item.sub_verificationNo </td>  
+		  <td> @item.vat_rate </td> 
+		  <td> @model.con_tlcIns </td> 
+		  <td> @item.gross </td> 
+		  <td> @item.materials </td>
+		  <td> @item.gross </td>
+		  <td> @item.tax </td> 
+		  <td> @item.vat_rate </td> 
+		  <td> @item.net </td>
+		  <td> @item.fee </td> 
+		  <td> @item.payable </td>
+		</tr>
+		
+		@{isOdd = !isOdd};
+		})
+		
+	  <tr>
+		<td></td>
+		<td></td>
+		<td></td>
+		<td><strong> @model.tlcSum </strong></td>
+		<td><strong> @model.grossSum </strong></td>
+		<td><strong> @model.materialsSum </strong></td>
+		<td><strong> @model.taxableSum </strong></td>
+		<td><strong> @model.taxSum </strong></td>
+		<td><strong> @model.vatSum </strong></td>
+		<td><strong> @model.netSum </strong></td>
+		<td><strong> @model.feeSum </strong></td>
+		<td><strong> @model.payableSum </strong></td>
+		</tr>
+    </table>
+	<br />
+    <hr>
+    <p >
+		<dl>
+		  <dt><strong>Net Payment Cost        : </strong></dt><dd> @model.netSum </dd><br />
+		  <dt><strong>VAT                     : </strong></dt><dd> @model.vatSum </dd><br />
+		  <dt><strong>Tax Held on your behalf : </strong></dt><dd> @model.taxHeldSum </dd><br />
+		  <dt><strong>TLC Insurance           : </strong></dt><dd> @model.tlcSum </dd><br />
+		  <dt><strong>Payment Due             : </strong></dt><dd> @model.totalPayable </dd><br />
+</dl>
+    </p>
+	<br />
+    <hr>
+    <p>
+      <center><small>This communication is for the exclusive use of the addressee and may contain proprietary, confidential or privileged information. If you are not the intended recipient any use, copying, disclosure, dissemination or distribution is strictly prohibited.
+      <br /><br />
+	  <strong>KODECOM is the trading name of Kode Compliance Ltd</strong>
+      &copy; KODECOM All Rights Reserved
+      </small></center>
+    </p>
+  </div><!--end content-->
+</div><!--end page-->
+
+})
+
+})
+
+<script type="text/javascript">
+
+$('.export-pdf').data('url',$('.report-url').data('url'));
+	
+	
+	
+</script>
+

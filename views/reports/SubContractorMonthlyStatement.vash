@@ -1,0 +1,83 @@
+@html.extend('./reports/layout',function(model){
+
+@html.block("main",function(model){
+
+<div id="page">
+<div class="report-url" data-url="@model.url"/>
+  <div id="logo"><img src="../../../../images/KodeCom.png" alt="Kodecom"></div><!--end logo-->
+  
+  <div id="address">
+    <p>
+	<strong>Sub-Contractor Monthly Statement<br />
+	Contractor Details </strong><br />@model.con_displayName<br />
+	@model.con_address<br />
+	@model.con_town<br />
+	@model.con_county<br />
+	@model.con_postCode<br />
+    <br />
+    Unique Tax Reference: @model.con_utr<br />
+	<br/>
+	<br/>
+	<br/>
+    </p>
+  </div><!--end address-->
+  <br/>
+  <div id="content">
+  <p >
+      <strong>SubContractor Details:</strong><br />
+      @model.sub_displayName<br />
+	  @model.sub_address<br />
+	  @model.sub_town<br />
+	  @model.sub_county<br />
+	  @model.sub_postCode<br />
+	</p>
+    <hr>
+	<table>
+		<strong>@model.sub_services</strong><br />
+		<strong>Statement of payment and deductions for month ending: </strong>@model.monthEnd <br />
+		<strong>SubContractor</strong><br />
+		<br />
+		Name: @model.sub_displayName<br />
+		Unique Tax Reference: @model.sub_utr<br />
+		National Insurance No: @model.sub_nino<br />
+		<br />
+		<br />
+		<br />
+		
+		
+		<dl>
+		  <dt><strong>Gross Amount Earned (A)    : </strong></dt><dd>@model.gross</dd><br />
+		  <dt><strong>Less cost of Materials     : </strong></dt><dd>@model.materialCost</dd><br />
+		  <dt><strong>Amount liable to deduction : </strong></dt><dd>@model.nett</dd><br />
+		  <dt><strong>CIS Tax Deducted (B)       : </strong></dt><dd>@model.tax</dd><br />
+		  <dt><strong>Amount Payable (A - B)     : </strong></dt><dd>@model.payable</dd><br />
+		</dl>
+	</table>
+    <hr>
+    <p>
+      Thank you for your order!  This transaction will appear on your billing statement as "Your Company".<br />
+      If you have any questions, please feel free to contact us at <a href="mailto:youremail@somewhere.com">youremail@somewhere.com</a>.
+    </p>
+
+    <hr>
+    <p>
+      <center><small>This communication is for the exclusive use of the addressee and may contain proprietary, confidential or privileged information. If you are not the intended recipient any use, copying, disclosure, dissemination or distribution is strictly prohibited.
+      <br /><br />
+      &copy; Your Company All Rights Reserved
+      </small></center>
+    </p>
+  </div><!--end content-->
+</div><!--end page-->
+
+})
+
+})
+
+<script type="text/javascript">
+
+$('.export-pdf').data('url',$('.report-url').data('url'));
+	
+	
+	
+</script>
+

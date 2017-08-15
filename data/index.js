@@ -1,65 +1,30 @@
 (function(dal){
+    
 
-
-
-dal.getUsers= function(cb){
-
-    var ADODB = require('node-adodb');
-    var connection = ADODB.open('Provider=Microsoft.Jet.OLEDB.4.0;Data Source=../data/KODE_DATABASE.accdb;');
-    console.log(connection);
+dal.save=function(param,cb){
     
-connection
-  .query('SELECT * FROM Users')
-  .on('done', function(data) {
-      cb(null,data);
-  //  console.log('result:', JSON.stringify(data, null, 2));
+    /// save to the database
     
+    var data =[];
     
-  })
-  .on('fail', function(error) {
-    // TODO something
-    cb(error,null);
-  });
-    
-    //return "users list";
-    
+    cb(null,data);
 }
 
-dal.getContractors= function(){
+
+dal.getContractors=function(param,cb){
     
-    return "Contractors list";
+    /// save to the database
     
+    var data =[{id:1,name:"naveen"},{id:2,name:"james"}];
+    // connect to database
+    //fire sql
+    // return records
+    
+    cb(null,data);
 }
 
-dal.getContractor= function(id){
-    
-    return "Contractor" + id;
-    
-}
 
-dal.getSubContractors= function(){
-    
-    return "SubContractors list";
-    
-}
-
-dal.getSubContractor= function(id){
-    
-    return "SubContractor" + id;
-    
-}
-
-dal.getPayrollForSubContractor= function(subId){
-    
-    return "SubContractors list for subId " + subId;
-    
-}
-
-dal.getPayroll= function(id){
-    
-    return "Payroll " + id;
-    
-}
 
 }
+
 (module.exports));

@@ -7,19 +7,22 @@
 
 })
 
-<div class="container">
 
 @html.block("main",function(model){
 
 <app-root></app-root>
 
+})
+
+
 
 })
 
-</div>
-
-})
-
+<script type="text/javascript" src="../kodecom-app/dist/inline.bundle.js"></script>
+<script type="text/javascript" src="../kodecom-app/dist/polyfills.bundle.js"></script>
+<script type="text/javascript" src="../kodecom-app/dist/vendor.bundle.js"></script>
+<script type="text/javascript" src="../kodecom-app/dist/main.bundle.js"></script>
+<script type="text/javascript" src="../kodecom-app/dist/styles.bundle.js"></script>
 <script type="text/javascript">
 
 $(document).ready(function(){

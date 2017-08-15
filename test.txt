@@ -1,1 +1,3 @@
-test.txt
+
+
+curl 'https://kode-com-kerrjp.c9users.io/api/contractor/save/' -H 'Origin: http://localhost:4200' -H 'Accept-Encoding: gzip, deflate, br' -H 'Accept-Language: en-GB,en-US;q=0.8,en;q=0.6' -H 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/59.0.3071.115 Safari/537.36' -H 'content-type: text/plain' -H 'Accept: application/json, text/plain, */*' -H 'Referer: http://localhost:4200/contractors/1/edit' -H 'Connection: keep-alive' --data-binary '{"companyName":"Mallet Construction Limited hello","firstName":"Deborah","surname":"Mallet","address":"21 Wilkinson CloseEaton Socon","town":"St Neots","county":"Cambridgeshire","postcode":"PE19 8HJ","phone":"01480 219316","mobPhone":"07885883213","fax":"07885883213","email":"deborah.mallet@btconnect.com","utr":"7721008666","tlcIns":5,"fee":"20","payerType":"Net Payer","id":1}' --compressed

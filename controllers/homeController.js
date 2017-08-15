@@ -1,34 +1,36 @@
 (function(homeController){
 
+const passport = require('passport');
     homeController.init= function(app){
-        console.log("in here");
+        
          setupRoutes(app);    
        
         
     };
     
 
+
 var setupRoutes=function(app){
     
-      app.get("/",function(req,res){
-           res.render("home",{title:"home page"});
+    //   app.get("/",function(req,res){
+    //       res.render("home",{title:"home page"});
            
-        });   
+    //     });   
      
-     app.get("/index/",function(req,res){
-           
-           res.render("index",{title:"index page"});
+     app.get("/home/", passport.authenticationMiddleware(), function(req,res){
+           var user = req.user;
+           res.render("home",{title:"home page",user:user});
            
            
         });   
-     app.get("/about/",function(req,res){
+     app.get("/about/",passport.authenticationMiddleware(), function(req,res){
            
            res.render("about",{title:"about page"});
            
            
         });   
         
-        app.get("/contact/",function(req,res){
+        app.get("/contact/", passport.authenticationMiddleware(), function(req,res){
            
            res.render("contact",{title:"contact page"});
            
@@ -36,7 +38,7 @@ var setupRoutes=function(app){
         });   
         // api
         
-       app.get("/api/getusers/",function(req,res){
+       app.get("/api/getusers/", passport.authenticationMiddleware(),function(req,res){
            
            console.log("getting users");
            const dal = require("../data");

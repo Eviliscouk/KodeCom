@@ -1,0 +1,102 @@
+  <button class="btn btn-success btn-sm" type="button" (click)="onSubmit(f)" [disabled]="!f.valid || editMode && !f.dirty">Submit</button>
+  <button class="btn btn-info btn-sm" (click)="reloadItems()">Reload</button>
+  <button class="btn btn-info btn-sm" (click)="onViewContractor()">View Contractor</button>
+      <hr>
+  <div class="panel-group restricted-height">
+    <div class="panel panel-default">
+      <div class="panel-heading">Batch Entry</div>
+      <div class="panel-body">
+         <p><strong>Payment Date: </strong> {{paymentDate | date:'dd-MM-yyyy'}} </p>
+         <p><strong strong>Week Ending Date: </strong> {{weekEnding | date:'dd-MM-yyyy'}} </p>
+         <p><strong strong>Month Ending Date: </strong> {{monthEndingDate | date:'dd-MM-yyyy'}} </p>
+        <form (ngSubmit)="onSubmit(f)" #f="ngForm">
+          <div class="table-responsive">
+        <table class="table table-striped table-hover table-bordered">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Deduction Rate</th>
+              <th>VAT Rate</th>
+              <th>Gross</th>
+              <th>Materials</th>
+              <th>Fee</th>
+              <th>Tax</th>
+              <th>Vat</th>
+              <th>Nett</th>
+              <th>Deductions</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+              <tr *ngFor="let item of payrollItems;let i = index;" [class.success]="item.saveSuccess" [class.danger]="item.recordError">
+                <td>
+                  {{GetSubcontractorName(item.s_ID)}}
+                </td>
+                <td>
+                  <input type="text" [attr.id]="'deductionRate_' + item.s_ID" [attr.disabled]="item.saveSuccess?'':null" class="form-control input-sm" name="deductionRate_{{item.s_ID}}" ngModel required pattern="^\d{0,3}(?:\.\d{1,2})?$">
+                      <div *ngIf="!f.controls['deductionRate_' + item.s_ID]?.valid && (f.controls['deductionRate_' + item.s_ID]?.dirty || f.controls['deductionRate_' + item.s_ID]?.touched)" class="alert alert-danger">
+                        <div [hidden]="!f.controls['deductionRate_' + item.s_ID].errors.required && !f.controls['deductionRate_' + item.s_ID].errors.pattern">
+                                Deduction Rate must be valid!
+                        </div>
+                      </div>
+                </td>
+                <td>
+                  <input type="text" [attr.id]="'vatRate_' + item.s_ID" [attr.disabled]="item.saveSuccess?'':null" class="form-control input-sm" name="vatRate_{{item.s_ID}}" ngModel required pattern="^\d{0,3}(?:\.\d{1,2})?$">
+                      <div *ngIf="!f.controls['vatRate_' + item.s_ID]?.valid && (f.controls['vatRate_' + item.s_ID]?.dirty || f.controls['vatRate_' + item.s_ID]?.touched)" class="alert alert-danger">
+                        <div [hidden]="!f.controls['vatRate_' + item.s_ID].errors.required && !f.controls['vatRate_' + item.s_ID].errors.pattern">
+                                VAT Rate must be valid!
+                        </div>
+                      </div>
+                </td>
+                <td>
+                  <input type="text" [attr.id]="'gross_' + item.s_ID" [attr.disabled]="item.saveSuccess?'':null" class="form-control input-sm" name="gross_{{item.s_ID}}" ngModel required pattern="^\d{0,8}(?:\.\d{1,2})?$">
+                    <div *ngIf="!f.controls['gross_' + item.s_ID]?.valid && (f.controls['gross_' + item.s_ID]?.dirty || f.controls['gross_' + item.s_ID]?.touched)" class="alert alert-danger">
+                        <div [hidden]="!f.controls['gross_' + item.s_ID]?.errors.required && !f.controls.gross.errors.pattern">
+                                Gross value must be valid!
+                        </div>
+                      </div>
+                </td>
+                <td><input type="text" [attr.id]="'materials_' + item.s_ID" [attr.disabled]="item.saveSuccess?'':null" class="form-control input-sm" name="materials_{{item.s_ID}}" ngModel required pattern="^\d{0,8}(?:\.\d{1,2})?$">
+                    <div *ngIf="!f.controls['materials_' + item.s_ID]?.valid && (f.controls['materials_' + item.s_ID]?.dirty || f.controls['materials_' + item.s_ID]?.touched)" class="alert alert-danger">
+                        <div [hidden]="!f.controls['materials_' + item.s_ID].errors.required && !f.controls['materials_' + item.s_ID].errors.pattern">
+                                Materials value must be valid!
+                        </div>
+                      </div>
+                </td>
+                <td>
+                  <input type="text" [attr.id]="'fee_' + item.s_ID" [attr.disabled]="item.saveSuccess?'':null" class="form-control input-sm" name="fee_{{item.s_ID}}" ngModel required pattern="^\d{0,3}(?:\.\d{1,2})?$">
+                      <div *ngIf="!f.controls['fee_' + item.s_ID]?.valid && (f.controls['fee_' + item.s_ID]?.dirty || f.controls['fee_' + item.s_ID]?.touched)" class="alert alert-danger">
+                        <div [hidden]="!f.controls['fee_' + item.s_ID].errors.required && !f.controls['fee_' + item.s_ID].errors.pattern">
+                                Fee must be valid!
+                        </div>
+                      </div>
+                </td>
+                <td>
+                  {{ item.tax | currency:'GBP':true}}
+                </td>
+                <td>
+                  {{ item.vat | currency:'GBP':true}}
+                </td>
+                <td>
+                  {{ item.nett | currency:'GBP':true}}
+                </td>
+                <td>
+                  {{ item.totalDeductions | currency:'GBP':true}}
+                </td>
+                <td>
+                  <button class="btn btn-danger btn-sm" type="button" (click)="removeItem(item.s_ID)" *ngIf="!item.saveSuccess">Delete</button>
+                  <div class="alert alert-success fade in" *ngIf="item.saveSuccess">
+                      <strong><small>{{ item.message }}</small></strong>
+                  </div>
+                  <div class="alert alert-danger fade in" *ngIf="item.recordError && !item.saveSuccess">
+                      <strong><small>{{ item.message }}</small></strong>
+                  </div>
+                </td>
+              </tr>
+          </tbody>
+        </table>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>

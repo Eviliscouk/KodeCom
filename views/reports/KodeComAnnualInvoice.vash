@@ -1,0 +1,79 @@
+@html.extend('./reports/layout',function(model){
+
+@html.block("main",function(model){
+
+<div id="page">
+<div class="report-url" data-url="@model.url"/>
+  <div id="logo"> <img src="../../../images/KodeCom.png" alt="Kodecom"></div><!--end logo-->
+  <div id="address">
+    <p><strong>@model.own_name</strong><br />
+	@model.own_address<br />
+	@model.own_town<br />
+	@model.own_county<br />
+	@model.own_postCode<br />
+    Tel: @model.own_telUK<br />
+	Fax: @model.own_faxUK<br />
+	<br />
+    Date: @model.today<br />
+    </p>
+  </div><!--end address-->
+  <br/>
+  <div id="content">
+  <p >
+      <strong>Invoice:</strong><br />
+      @model.sub_displayName<br />
+	  @model.sub_address<br />
+	  @model.sub_town<br />
+	  @model.sub_county<br />
+	  @model.sub_postCode<br />
+	</p>
+	<br/>
+	<p >
+      <strong>Sub Contractor: </strong>@model.sub_displayName <br />
+	  <br />
+	  <strong>Contractor: </strong>@model.con_displayName <br />
+	</p>
+    <hr>
+    <table>
+      <tr><td><strong>Quantity</strong></td><td><strong>Description</strong></td><td><strong>Unit Price</strong></td><td><strong>Total</strong></td></tr>
+	  <tr class="odd">
+	   <td> @model.invoiceCount </td> 
+	   <td>Administrative Fee for the period ending @model.today</td> 
+	   <td> @model.unitPrice </td> 
+	   <td> @model.total </td> 
+	  </tr>
+	  <tr class="even">
+	  <td></td> 
+	  <td></td> 
+	  <td class="special"><strong><div>TOTAL</div></strong></td>
+	  <td>@model.total</td>
+	  </tr>
+    </table>
+    <hr>
+    <p>
+      PAID WITH THANKS, Thank you for your Business! <br />
+    </p>
+
+    <hr>
+    <p>
+      <center><small>This communication is for the exclusive use of the addressee and may contain proprietary, confidential or privileged information. If you are not the intended recipient any use, copying, disclosure, dissemination or distribution is strictly prohibited.
+      <br /><br />
+	  <strong>KODECOM is the trading name of Kode Compliance Ltd</strong>
+      &copy; KODECOM All Rights Reserved
+      </small></center>
+    </p>
+  </div><!--end content-->
+</div><!--end page-->
+
+})
+
+})
+
+<script type="text/javascript">
+
+$('.export-pdf').data('url',$('.report-url').data('url'));
+	
+	
+	
+</script>
+

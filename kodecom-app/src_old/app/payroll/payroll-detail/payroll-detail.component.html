@@ -1,0 +1,66 @@
+<button class="btn btn-success btn-sm" (click)="onEditPayroll()">Edit Timesheet</button>
+<button class="btn btn-info btn-sm" (click)="onViewInvoice()">View Invoice</button>
+ <button class="btn btn-info btn-sm" (click)="onViewPayrolls()">View Timesheets</button>
+<hr>
+<div class="panel-group" *ngIf="payroll">
+  <div class="panel panel-default">
+    <div class="panel-heading"><strong>{{ subContractorName }}</strong></div>
+    <div class="panel-body">
+          <dl class="dl-horizontal">
+            <dt>Week Ending</dt>
+            <dd>{{payroll.weekEnding | date:'dd-MM-yyyy'}}</dd>
+            <dt>Payment Date</dt>
+            <dd>{{payroll.paymentDate | date:'dd-MM-yyyy'}}</dd>
+            <dt>Month Ending</dt>
+            <dd>{{payroll.monthEndingDate | date:'dd-MM-yyyy'}}</dd>
+            <dt>Deduction Rate</dt>
+            <dd>{{payroll.deductionRate}}</dd>
+            <dt>VAT Rate</dt>
+            <dd>{{payroll.vatRate}}</dd>
+            <dt>Gross</dt>
+            <dd>{{payroll.gross | currency:'GBP':true}}</dd>
+            <dt>Fee</dt>
+            <dd>{{payroll.fee}}</dd>
+            <dt>Materials</dt>
+            <dd>{{payroll.materials}}</dd>
+            <dt>Total Deductions</dt>
+            <dd>{{payroll.totalDeductions | currency:'GBP':true}}</dd>
+            <dt>Tax</dt>
+            <dd>{{tax | currency:'GBP':true}}</dd>
+            <dt>VAT</dt>
+            <dd>{{vat | currency:'GBP':true}}</dd>
+            <dt>Nett</dt>
+            <dd>{{nett | currency:'GBP':true}}</dd>
+            <dt>Locked</dt>
+            <dd>
+              <div class="form-check">
+                <label class="form-check-label">
+                  <input class="form-check-input" type="checkbox" name="locked" [(ngModel)]="payroll.locked" disabled="true">
+                </label>
+              </div>
+            </dd>
+          </dl>
+      </div>
+  </div>
+
+  <div class="panel panel-default" >
+  <div class="panel-heading">Deductions</div>
+    <div class="panel-body">
+            <button class="btn btn-success btn-sm" data-target="#addDeduction" data-toggle="collapse">+</button>
+            <br>
+            <div id="addDeduction" class="collapse" >
+              <input id="deductionAmount" class="form-control" [(ngModel)]="newDeduction.amount">
+              <textarea id="deductionText" class="form-control" rows="5" [(ngModel)]="newDeduction.description"></textarea>
+             <button *ngIf="newDeduction && newDeduction.description.length > 0 && newDeduction.amount > 0" (click)="onAddDeduction()" class="btn btn-success btn-sm" data-toggle="collapse" data-target="#addDeduction">Add</button>
+             <button class="btn btn-warning btn-sm" data-toggle="collapse" data-target="#addDeduction">Cancel</button>
+             <br>
+            </div>
+          <div class="list-group small-restricted-height">
+            <app-payroll-deduction-item 
+              *ngFor="let deduction of payroll.deductions"
+              [payrollDeduction]="deduction"
+              ></app-payroll-deduction-item>
+      </div>
+      </div>
+  </div>
+</div>

@@ -1,0 +1,68 @@
+@html.extend('./reports/layout',function(model){
+
+@html.block("main",function(model){
+
+<div id="page" class="print">
+	<div class="report-url" data-url="@model.url"/>
+	
+  <div id="logo"> <img src="../../../images/KodeCom.png" alt="Kodecom"></div><!--end logo-->
+  <div id="address">
+    <p><strong>Contractor Monthly Return</strong><br />
+		<strong>For          :</strong>@model.con_displayName<br />
+		<strong>Month Ending : </strong>@model.monthEnd<br />
+		<strong>Tax Reference: </strong>@model.con_taxRef<br />
+    	</p>
+  </div>
+  <div id="content">
+  <p>
+    <strong>SubContractor Details:</strong><br />
+	</p>
+    <table class="topAndBottom">
+      <tr><th><strong>Name</strong></th><th><strong>Verification No</strong></th><th><strong>UTR</strong></th><th><strong>NINO</strong></th><th><strong>Total Payments</strong></th><th><strong>Cost of Materials</strong></th><th><strong>Tax Deducted</strong></th></tr>
+	 @{	var isOdd = true; }
+	 @model.items.forEach(function(item){ 
+	 
+		<tr class="@(isOdd ? 'odd' : '')">
+		  <td> @item.sub_displayName </td>  
+      <td> @item.sub_verificationNo </td>  
+		  <td> @item.sub_utr </td> 
+		  <td> @item.sub_nino </td> 
+		  <td> @item.total_payments </td> 
+		  <td> @item.total_materials </td>
+		  <td> @item.total_taxDeducted </td>
+		 </tr>
+		 
+	  	@{isOdd = !isOdd};
+		})
+		
+    </table>
+	<br />
+    <p >
+		<dl>
+		  <dt><strong>Total Payments    : </strong></dt><dd>@model.totalPayments</dd><br />
+		  <dt><strong>Cost of Materials : </strong></dt><dd>@model.totalMaterials</dd><br />
+		  <dt><strong>Tax Deducted      : </strong></dt><dd>@model.totalTaxDeducted</dd><br />
+		</dl>
+			<br />
+    </p>
+    <p>
+      <center><small>This communication is for the exclusive use of the addressee and may contain proprietary, confidential or privileged information. If you are not the intended recipient any use, copying, disclosure, dissemination or distribution is strictly prohibited.
+      <br /><br />
+	  <strong>KODECOM is the trading name of Kode Compliance Ltd</strong>
+      &copy; KODECOM All Rights Reserved
+      </small></center>
+    </p>
+  </div><!--end content-->
+</div><!--end page-->
+
+})
+
+})
+
+<script type="text/javascript">
+
+$('.export-pdf').data('url',$('.report-url').data('url'));
+	
+	
+	
+</script>

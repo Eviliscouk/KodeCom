@@ -1,0 +1,14 @@
+.table td {
+   text-align: center;   
+}
+
+.table th {
+   text-align: center;   
+}
+
+.restricted-height{
+  height:auto;
+  max-height:700px;
+  min-width: 0px;
+  overflow: auto;
+}
