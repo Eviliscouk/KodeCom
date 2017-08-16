@@ -1,6 +1,6 @@
 {
   "name": "kode-com",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "kode com applicaiton",
   "main": "server.js",
   "scripts": {
