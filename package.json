@@ -1,11 +1,12 @@
 {
   "name": "kode-com",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "kode com applicaiton",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "test": "mocha ./tests/"
+    "test": "mocha ./tests/",
+    "dev": "node server.js debug"
   },
   "repository": {
     "type": "git",
