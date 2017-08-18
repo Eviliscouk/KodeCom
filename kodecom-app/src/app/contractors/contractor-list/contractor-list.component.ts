@@ -16,7 +16,7 @@ import {FilterDisplayNamePipe} from '../../shared/filter-displayName.pipe';
 export class ContractorListComponent implements OnInit, OnDestroy {
   contractorNames: ContractorName[] = [];
   private contractorSub: Subscription;
-  private diplayNameFilter: string;
+  public diplayNameFilter: string;
 
   constructor(private contractorsService: ContractorService,
               private router: Router,

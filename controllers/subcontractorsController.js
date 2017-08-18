@@ -153,7 +153,6 @@ var setupRoutes=function(app){
         
         app.get("/api/subcontractorAttachments/get/:id",passport.authenticationMiddleware(),function(req,res){
         
-        
         db.getSubContractorAttachments(req.params,function(err,data){
            
            if(err)
@@ -170,18 +169,8 @@ var setupRoutes=function(app){
         
         app.post("/api/subcontractorAttachment/delete/",passport.authenticationMiddleware(),function(req,res){
         console.log('deleting..');
-        var body='';
-        req.on('data',function(data){
-           body +=data;
-            
-        });
         
-        req.on('end', function () {
-        
-        var params = JSON.parse((body));
-        console.log(body);
-        
-        db.deleteSubContractorAttachment(params,function(err,data){
+        db.deleteSubContractorAttachment(req.body,function(err,data){
            
            if(err)
            res.send(err)
@@ -190,12 +179,6 @@ var setupRoutes=function(app){
             res.send(data);
         
         });
-        //res.send("ok");
-        
-        });
-        
-        
-        
         });
         
         app.post("/api/subcontractorAttachment/save/",passport.authenticationMiddleware(),saveFile);
@@ -203,22 +186,44 @@ var setupRoutes=function(app){
 }
 
 function saveFile(req,res,next){
-    var temppath = path.resolve('public');
+    
+        var filename = req.headers['filename'];
+        var contentType = req.headers['content-type'];
+        var id = req.headers['object_id'];
+        var docPath = path.resolve('documents');
+        var dateTimeStr = new Date().getTime().toString();
+        var savedFileName = dateTimeStr + '_' + filename;
+        docPath = path.join(docPath, savedFileName);
+        var writeStream = fs.createWriteStream(docPath, {flags: 'w'});
+        
+        req.pipe(writeStream, {end: false});
+        
+        req.on('end', function () {
+            // db save
+            var promise = db.saveSubContractorAttachmentLocation({id: id, filepath: docPath, name: filename, type: contentType});
+            promise.then(res.end('ok'),res.end('fail'));
+            
+            });
+        
+        
+    
+        /*var temppath = path.resolve('public');
         var filename = req.headers['filename'];
         var contentType = req.headers['content-type'];
         var id = req.headers['object_id'];
         temppath = path.join(temppath,'files/'+ filename);
-        var writeStream = fs.createWriteStream(temppath, {flags: 'a'});
+        var writeStream = fs.createWriteStream(temppath, {flags: 'w'});
     
         var body;
         
         req.pipe(writeStream, {end: false});
+        
         req.on('end', function () {
             // db save
-            var promise = db.saveSubContractorAttachment({id: id, filepath: temppath, name: filename, type: contentType});
+            var promise = db.saveContractorAttachment({id: id, filepath: temppath, name: filename, type: contentType});
             promise.then(res.end('ok'),res.end('fail'));
             
-            });
+            });*/
     }
 
 })(module.exports);

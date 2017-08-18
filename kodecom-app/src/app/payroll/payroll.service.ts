@@ -4,15 +4,17 @@ import { Deduction } from "../shared/deduction.model";
 import { Http, Response, RequestOptions, Headers } from '@angular/http';
 import { Subject } from 'rxjs/Subject';
 import {Observable} from 'rxjs/Rx';
+import * as glob from "../shared/globals";
 
 @Injectable()
 export class PayrollService {
   PayrollsChanged = new Subject<number>();
     headers = new Headers();
-    root = 'https://kode-com-kerrjp.c9users.io';
+    root = '';//'https://kode-com-kerrjp.c9users.io';
 
   constructor(private http: Http) {
     this.headers.append('Content-Type', 'application/json');
+    this.root = glob.serviceRoot;
    }
 
   getPayrolls(id: number) : Observable<Payroll[]>{

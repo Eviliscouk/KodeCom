@@ -97,7 +97,7 @@ dal.getContractorAttachments=function(param,cb){
     
     var sql = "select id,display_name as fileName, dated as a_date";
     sql +=" from KodeCom.Documents ";
-     sql += util.format(" where  (object_id =%d and object_type = 'contractor' and content is not null) order by dated desc",param.id);
+     sql += util.format(" where  (object_id =%d and object_type = 'contractor' and link is not null) order by dated desc",param.id);
     
     console.log("db script: %s",sql);
     
@@ -110,7 +110,7 @@ dal.getContractorAttachments=function(param,cb){
 
 dal.getContractorAttachment=function(param,cb){
     
-    var sql = "select display_name as fileName,doctype,content";
+    var sql = "select display_name as fileName,doctype,link";
     sql +=" from KodeCom.Documents ";
      sql += util.format(" where id = %s;",param.id);
     
@@ -123,6 +123,39 @@ dal.getContractorAttachment=function(param,cb){
 
 }
 
+
+dal.saveContractorAttachmentLocation=function(param){
+   
+    console.log('saving attachment');
+    console.log(param.filepath);
+    
+    var sql = 'insert into KodeCom.Documents SET ?';
+    
+    console.log(param.filepath);
+    
+    var vals = {
+      object_id: param.id,
+      object_type: 'contractor',
+      display_name: param.name,
+      
+      doctype: param.type,
+      link: param.filepath
+     //content: fs.readFileSync(param.filepath, null)
+      
+    };
+    
+    console.log("db script: %s",sql);
+    
+    return new Promise(function(resolve, reject){
+     
+        db.runWithValues({sql:sql, values: vals},function(err,result){
+            if(err) 
+                reject("fail");
+            else
+                resolve("ok");
+        }); 
+    });
+}
 
 dal.saveContractorAttachment=function(param){
    
@@ -172,9 +205,26 @@ dal.saveContractorNote=function(param,cb){
     if(err) return cb(err);
    cb(null,"ok");
 });
-
 }
 
+dal.lockPayroll=function(param,cb){
+    
+    var sql ='';
+    sql = "UPDATE KodeCom.Payroll SET locked = -1 ";
+    sql += util.format("WHERE contractor_id = %s ", param.id);
+    sql += util.format("and payment_date between STR_TO_DATE(%s,", param.fromDate);
+    sql += "'%d/%m/%Y') and STR_TO_DATE(";
+    sql += util.format("%s,", param.toDate);
+    sql += "'%d/%m/%Y');";
+    
+    console.log("db script: %s",sql);
+    
+    db.run({sql:sql},function(err,result){
+    if(err) return cb(err);
+   cb(null,"ok");
+});
+
+}
 
 dal.saveContractor=function(param,cb){
     var sql ='';
@@ -235,14 +285,35 @@ dal.saveContractor=function(param,cb){
 
 
 dal.deleteContractorAttachment=function(param,cb){
-    var sql ='';
-   
-    sql = util.format("delete from KodeCom.Documents where id = %s; ", param.id);
+    
+    getContractorAttachmentFilePath(param, function(err,result) {
+        if (err) return cb(err);
+        
+            var sql ='';
+            sql = util.format("delete from KodeCom.Documents where id = %s; ", param.id);
+            console.log("db script: %s",sql);
+            
+            db.run({sql:sql},function(err,data){
+                         fs.unlink(result.link);           
+                        if(err) return cb(err);
+            
+                        cb(null,"ok");
+           
+        });
+    });
+};
+
+var getContractorAttachmentFilePath=function(param,cb){
+    
+    var sql = "select link";
+    sql +=" from KodeCom.Documents ";
+     sql += util.format(" where id = %s;",param.id);
+    
     console.log("db script: %s",sql);
     
     db.run({sql:sql},function(err,result){
     if(err) return cb(err);
-   cb(null,"ok");
+   cb(null, result[0]);
 });
 
 }

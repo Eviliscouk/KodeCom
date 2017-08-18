@@ -142,7 +142,8 @@
                   </div>
               </div>
               <label for="payerType">Payer Type</label>
-              <select id="payerType" class="form-control" name="payerType" [ngModel]="payerType" required>
+              <!--<select id="payerType" class="form-control" name="payerType" [ngModel]="payerType" required>-->
+              <select id="payerType" class="form-control" name="payerType" ngModel required>
                   <option *ngFor="let pEl of payerTypes" [value]="pEl.value">  
                   {{pEl.display}}
                   </option>

@@ -85,6 +85,15 @@ export class PayrollDetailComponent implements OnInit {
       this.subcontractorService.getInvoice(this.payroll.p_ID);
   }
 
+  async onEmailInvoice()
+  {
+    var result = await this.subcontractorService.emailInvoice(this.payroll.p_ID);
+    if (result == 'ok')
+      alert('Invoice Email Sent!');
+    else
+      alert('Error Sending Invoice!');
+  }
+
   async onAddDeduction()
   {
     var deduction = new Deduction(0, this.payroll.p_ID, this.newDeduction.description, this.newDeduction.amount);

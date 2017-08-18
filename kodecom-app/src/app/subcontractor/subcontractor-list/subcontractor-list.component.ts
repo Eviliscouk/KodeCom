@@ -17,7 +17,7 @@ export class SubcontractorListComponent implements OnInit {
   id: number;
   subcontractorNames: SubContractorName[] = [];
   private subContractorSub: Subscription;
-  private diplayNameFilter: string = "";
+  public diplayNameFilter: string = "";
 
   constructor(private subcontractorsService: SubContractorService,
               private router: Router,

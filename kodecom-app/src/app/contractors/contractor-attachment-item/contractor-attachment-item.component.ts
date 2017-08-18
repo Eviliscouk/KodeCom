@@ -34,8 +34,8 @@ export class ContractorAttachmentItemComponent implements OnInit {
   {
     if (this.isContractor)
       this.contractorsService.getContractorAttachment(this.contractorAttachment.id);//.subscribe(x => x);
-    //else
-      //this.subcontractorsService.deleteSubContractorAttachment(this.contractorAttachment.id);
+    else
+      this.subcontractorsService.getSubContractorAttachment(this.contractorAttachment.id);
   }
 
 }

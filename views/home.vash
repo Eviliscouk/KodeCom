@@ -18,11 +18,11 @@
 
 })
 
-<script type="text/javascript" src="../kodecom-app/dist/inline.bundle.js"></script>
-<script type="text/javascript" src="../kodecom-app/dist/polyfills.bundle.js"></script>
-<script type="text/javascript" src="../kodecom-app/dist/vendor.bundle.js"></script>
-<script type="text/javascript" src="../kodecom-app/dist/main.bundle.js"></script>
-<script type="text/javascript" src="../kodecom-app/dist/styles.bundle.js"></script>
+<script type="text/javascript" src="../angular/inline.82d12f9bc4e269af4fd3.bundle.js"></script>
+<script type="text/javascript" src="../angular/polyfills.0d07a107735e17f30dae.bundle.js"></script>
+<script type="text/javascript" src="../angular/vendor.aae4492519213268b90b.bundle.js"></script>
+<script type="text/javascript" src="../angular/main.a6c6e7f67bfa77949725.bundle.js"></script>
+<script type="text/javascript" src="../angular/styles.176e4d821cc3a21887b2.bundle.js"></script>
 <script type="text/javascript">
 
 $(document).ready(function(){

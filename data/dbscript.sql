@@ -104,3 +104,33 @@ payroll_id INT NOT NULL,
 description VARCHAR(255),
 amount float(15,3) NOT NULL
 );
+
+CREATE TABLE User (
+id int primary key AUTO_INCREMENT, 
+dated timestamp default current_timestamp,
+last_loggedIn_datetime timestamp  ,
+active bit(1)       | YES  |     | b'1'                |                |
+first_name varchar(100) | YES  |     | NULL                |                |
+surname    varchar(100) | YES  |     | NULL                |                |
+username   varchar(15)  | YES  |     | NULL                |                |
+password   varchar(15)  | YES  |     | NULL                |                |
++------------------------+--------------+------+-----+---------------------+----------------+
+
+mysql> describe sessions;
++------------+------------------+------+-----+---------+-------+
+| Field      | Type             | Null | Key | Default | Extra |
++------------+------------------+------+-----+---------+-------+
+| session_id | varchar(128)     | NO   | PRI | NULL    |       |
+| expires    | int(11) unsigned | NO   |     | NULL    |       |
+| data       | text             | YES  |     | NULL    |       |
++------------+------------------+------+-----+---------+-------+
+
+mysql> select * from User;
++----+---------------------+------------------------+--------+------------+----------+-----------+--------------+
+| id | dated               | last_loggedIn_datetime | active | first_name | surname  | username  | password     |
++----+---------------------+------------------------+--------+------------+----------+-----------+--------------+
+|  1 | 2017-08-01 15:19:10 | 0000-00-00 00:00:00    |       | James      | Kerr     | jkerr     | cGFzc3dvcmQ= |
+|  2 | 2017-08-02 09:17:33 | 0000-00-00 00:00:00    |       | Naveen     | Sharma   | nsharma   | cGFzc3dvcmQ= |
+|  3 | 2017-08-02 09:18:19 | 0000-00-00 00:00:00    |       | Peter      | Goldberg | pgoldberg | cGFzc3dvcmQx |
+|  4 | 2017-08-02 09:18:54 | 0000-00-00 00:00:00    |       | Nicola     | Coates   | ncoates   | cGFzc3dvcmQx |
++----+---------------------+------------------------+--------+------------+----------+-----------+--------------+

@@ -120,7 +120,7 @@ dal.getContractorMonthlyReturnData=function(param,cb){
     
     sql += "Select pay.subcontractor_id as subId, ";
     sql += "IF(sub.company_name NOT IN ('', 'NONE', 'None', 'none'), sub.company_name, CONCAT(sub.first_name, ', ', sub.surname)) as sub_displayName, "
-    sql += "sub.verification_no as sub_verificationNo, sub.utr as sub_utr, sub.nino as sub_nino, CONCAT('£', FORMAT(SUM(pay.gross),2)) as total_payments, CONCAT('£', FORMAT(SUM(pay.materials), 2)) as total_materials "
+    sql += "sub.verification_no as sub_verificationNo, sub.utr as sub_utr, sub.nino as sub_nino, CONCAT('£', FORMAT((SUM(pay.gross) - SUM(pay.materials)) * sub.deduction_rate/100,2)) as total_taxDeducted, CONCAT('£', FORMAT(SUM(pay.gross),2)) as total_payments, CONCAT('£', FORMAT(SUM(pay.materials), 2)) as total_materials "
     sql +="from KodeCom.Payroll as pay ";
     sql +="INNER JOIN KodeCom.SubContractor AS sub ON pay.subcontractor_id = sub.id ";
     sql += util.format("WHERE pay.contractor_id = %d AND pay.payment_date BETWEEN ",  param.id);
@@ -129,8 +129,9 @@ dal.getContractorMonthlyReturnData=function(param,cb){
     sql += util.format("'%s',", param.monthEnd);
     sql += "'%d-%m-%Y') GROUP BY pay.subcontractor_id;";
     
-    sql += "Select CONCAT('£', FORMAT(SUM(pay.gross),2)) as totalPayments, CONCAT('£', FORMAT(SUM(pay.materials),2)) as totalMaterials "
+    sql += "Select CONCAT('£', FORMAT(SUM(pay.gross),2)) as totalPayments, CONCAT('£', FORMAT((SUM(pay.gross) - SUM(pay.materials)) * sub.deduction_rate/100,2)) as totalTaxDeducted, CONCAT('£', FORMAT(SUM(pay.materials),2)) as totalMaterials "
     sql +="from KodeCom.Payroll as pay ";
+    sql +="INNER JOIN KodeCom.SubContractor AS sub ON pay.subcontractor_id = sub.id ";
     sql += util.format("WHERE pay.contractor_id = %d AND pay.payment_date BETWEEN ",  param.id);
     sql += util.format("STR_TO_DATE('%s',", monthStartStr);
     sql += "'%d/%m/%Y') AND STR_TO_DATE(";

@@ -25,6 +25,7 @@
                 <td rowspan="2">&nbsp;</td>
                 <td>
                   <button class="btn btn-success btn-sm" (click)="onViewMonthlyReturn()">View</button>
+                  <button class="btn btn-primary btn-sm" (click)="onEmailMonthlyReturn()">Email</button>
                 </td>
               </tr>
               <tr>
@@ -48,6 +49,39 @@
                 <td rowspan="2">&nbsp;</td>
                 <td>
                   <button class="btn btn-success btn-sm" (click)="onViewWeeklyRemittance()">View</button>
+                  <button class="btn btn-primary btn-sm" (click)="onEmailWeeklyRemittance()">Email</button>
+                </td>
+              </tr>
+              <tr>
+                <td>&nbsp;</td>
+              </tr>
+              <tr>
+                <td>
+                  <strong>
+                    Payroll Lock
+                    </strong>
+                </td>
+                </tr>
+              <tr>
+                <td>
+                  Start Date:
+                </td>
+                <td>&nbsp;</td>
+                <td>
+                  <input type="date" id="fromDate" class="form-control" name="fromDate" [ngModel] ="fromDate | date:'yyyy-MM-dd'" (ngModelChange)="fromDate = $event"  required>
+                </td>
+                <td rowspan="2">&nbsp;</td>
+                <td rowspan="2" style="text-align: left; vertical-align: middle;">
+                  <button class="btn btn-success btn-sm" (click)="onLockPayroll()">Lock</button>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  End Date:
+                </td>
+                <td>&nbsp;</td>
+                <td>
+                  <input type="date" id="toDate" class="form-control" name="toDate" [ngModel] ="toDate | date:'yyyy-MM-dd'" (ngModelChange)="toDate = $event"  required>
                 </td>
               </tr>
           </tbody>

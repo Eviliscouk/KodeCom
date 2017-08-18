@@ -3,8 +3,8 @@
 @html.block("main",function(model){
 
 <div id="page">
-<div class="report-url" data-url="@model.url"/>
-  <div id="logo"> <img src="../../../images/KodeCom.png" alt="Kodecom"></div><!--end logo-->
+<div class="report-url" data-url="@model.url" data-name="@model.title"/>
+  <div id="logo"> <img src="@model.logoUrl" alt="Kodecom"></div><!--end logo-->
   
   <div id="address">
     <p><strong>Contractor Weekly Remittance</strong><br />

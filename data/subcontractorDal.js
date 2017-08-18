@@ -143,16 +143,35 @@ dal.saveSubContractorNote=function(param,cb){
 }
 
 dal.deleteSubContractorAttachment=function(param,cb){
-    var sql ='';
-   
-    sql = util.format("delete from KodeCom.Documents where id = %s; ", param.id);
+    
+    getSubContractorAttachmentFilePath(param, function(err,result) {
+        if (err) return cb(err);
+        
+            var sql ='';
+            sql = util.format("delete from KodeCom.Documents where id = %s; ", param.id);
+            console.log("db script: %s",sql);
+            
+            db.run({sql:sql},function(err,data){
+                         fs.unlink(result.link);           
+                        if(err) return cb(err);
+            
+                        cb(null,"ok");
+           
+        });
+    });
+};
+
+var getSubContractorAttachmentFilePath=function(param,cb){
+    
+    var sql = "select link";
+    sql +=" from KodeCom.Documents ";
+     sql += util.format(" where id = %s;",param.id);
+    
     console.log("db script: %s",sql);
-     
-        
-        
+    
     db.run({sql:sql},function(err,result){
     if(err) return cb(err);
-   cb(null,"ok");
+   cb(null, result[0]);
 });
 
 }
@@ -161,7 +180,7 @@ dal.getSubContractorAttachments=function(param,cb){
     
     var sql = "select id,display_name as fileName, dated as a_date";
     sql +=" from KodeCom.Documents ";
-     sql += util.format(" where  (object_id =%d and object_type = 'subcontractor' and content is not null) order by dated desc",param.id);
+     sql += util.format(" where  (object_id =%d and object_type = 'subcontractor' and link is not null) order by dated desc",param.id);
     
     console.log("db script: %s",sql);
     
@@ -174,7 +193,7 @@ dal.getSubContractorAttachments=function(param,cb){
 
 }
 
-dal.saveSubContractorAttachment=function(param){
+dal.saveSubContractorAttachmentLocation=function(param){
    
     console.log('saving attachment');
     console.log(param.filepath);
@@ -189,7 +208,8 @@ dal.saveSubContractorAttachment=function(param){
       display_name: param.name,
       
       doctype: param.type,
-      content: fs.readFileSync(param.filepath)
+      link: param.filepath
+      //content: fs.readFileSync(param.filepath)
     };
     
     console.log("db script: %s",sql);
@@ -197,7 +217,6 @@ dal.saveSubContractorAttachment=function(param){
     return new Promise(function(resolve, reject){
      
         db.runWithValues({sql:sql, values: vals},function(err,result){
-        fs.unlink(param.filepath);
         
             if(err) 
                 reject("fail");

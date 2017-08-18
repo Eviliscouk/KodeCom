@@ -3,20 +3,19 @@
 <head>
 <title>@model.title</title>
 <style type="text/css" media="all">
+
 body {
   font-family:Tahoma;  
   font-size:12px;
-  height:297mm;
-    width:210mm;
 }
 img {
   border:0;
 }
 
 #page {
-   margin:0 auto;
   padding:0px;
   width:700px;
+  overflow:hidden;
 
 }
 
@@ -120,10 +119,10 @@ table.topAndBottom {
         $('.export-pdf').on('click',function(){
           
           var reportUrl = $(this).data('url');
-          alert(reportUrl);
-          
-          var url ='https://kode-com-kerrjp.c9users.io/report?report=http://kode-com-kerrjp.c9users.io' + reportUrl +'/pdf';
+          var reportname = $('.report-url').data('name');
+          //alert(reportUrl);
           //var url ='https://kode-com-kerrjp.c9users.io/report?report=' + reportUrl +'/pdf';
+          var url ='/report?name='+reportname+'&report=' + reportUrl +'/pdf';
           
             window.open(url);     
            

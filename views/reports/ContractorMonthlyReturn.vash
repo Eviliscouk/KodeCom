@@ -3,9 +3,9 @@
 @html.block("main",function(model){
 
 <div id="page" class="print">
-	<div class="report-url" data-url="@model.url"/>
+	<div class="report-url" data-url="@model.url" data-name="@model.title"/>
 	
-  <div id="logo"> <img src="../../../images/KodeCom.png" alt="Kodecom"></div><!--end logo-->
+  <div id="logo"> <img src="@model.logoUrl" alt="Kodecom"></div><!--end logo-->
   <div id="address">
     <p><strong>Contractor Monthly Return</strong><br />
 		<strong>For          :</strong>@model.con_displayName<br />

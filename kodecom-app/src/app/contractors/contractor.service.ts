@@ -8,16 +8,18 @@ import { ContractorName } from "./contractor-list/contractorName.model";
 import { Subject } from 'rxjs/Subject';
 import {Observable} from 'rxjs/Rx';
 import 'rxjs/add/operator/map';
+import * as glob from "../shared/globals";
 
 @Injectable()
 export class ContractorService {
     contractorsChanged = new Subject<number>();
     contractorAttachmentsChanged = new Subject<number>();
     headers = new Headers();
-    root = 'https://kode-com-kerrjp.c9users.io';
+    root = '';//'https://kode-com-kerrjp.c9users.io';
 
   constructor(private http: Http) {
     this.headers.append('Content-Type', 'application/json');
+    this.root = glob.serviceRoot;
    }
 
   getContractors() : Observable<Contractor[]>{
@@ -50,7 +52,6 @@ export class ContractorService {
   }
 
   async getContractorWeeklyRemittance(id: number, paymentDate: string) {
-    console.log('requesting remittance');
     const response = await this.http.get(this.root+'/api/reports/contractorWeeklyRemittance/'+id+'/'+paymentDate).toPromise();
     var x=window.open();
     console.log(response.text());
@@ -58,13 +59,26 @@ export class ContractorService {
     x.document.close();
   }
 
+  async emailContractorWeeklyRemittance(id: number, paymentDate: string) {
+    var obj = {id:id, paymentDate:paymentDate};
+    const response = await this.http.post(this.root+'/api/reports/email/contractorWeeklyRemittance/', obj, { headers: this.headers }).toPromise();
+    var result = response.text();
+    return result;
+  }
+
   async getContractorMonthlyReturn(id: number, monthEnd: string) {
-    console.log('requesting remittance');
     const response = await this.http.get(this.root+'/api/reports/contractorMonthlyReturn/'+id+'/'+monthEnd).toPromise();
     var x=window.open();
     console.log(response.text());
     x.document.open().write(response.text());
     x.document.close();
+  }
+
+  async emailContractorMonthlyReturn(id: number, monthEnd: string) {
+    var obj = {id:id, monthEnd:monthEnd};
+    const response = await this.http.post(this.root+'/api/reports/email/contractorMonthlyReturn/', obj, { headers: this.headers }).toPromise();
+    var result = response.text();
+    return result;
   }
   
   async updateContractor(values: string): Promise<string>{ 
@@ -106,6 +120,16 @@ export class ContractorService {
   async addContractorNote(values: string): Promise<string>{ 
 
     const response = await this.http.post(this.root+'/api/contractorNote/save/', values, {
+        headers: this.headers
+      }).toPromise();
+
+      var result = response.text();
+      return result;
+  }
+
+  async lockPayroll(id: number, fromDate: string, toDate: string): Promise<string>{ 
+    var obj = {id:id, fromDate:fromDate, toDate:toDate };
+    const response = await this.http.post(this.root+'/api/contractor/lockPayroll/',obj, {
         headers: this.headers
       }).toPromise();
 

@@ -1,7 +1,7 @@
 <button class="btn btn-success btn-sm" type="button" (click)="onSubmit(f)" [disabled]="!f.valid || editMode && !f.dirty">{{ editMode ? 'Update' : 'Add' }}</button>
           <button class="btn btn-danger btn-sm" type="button" (click)="onDelete()" *ngIf="editMode">Delete</button>
           <button class="btn btn-primary btn-sm" type="button" (click)="onClear()" *ngIf="!editMode">Clear</button>
-          <button class="btn btn-info btn-sm" (click)="onViewPayrolls()">View TimeSheets</button>
+          <button class="btn btn-primary btn-sm" (click)="onViewPayrolls()">View TimeSheets</button>
       <hr>
       <div class="alert alert-success fade in" *ngIf="saveSuccess">
     <strong>{{ message }}</strong>

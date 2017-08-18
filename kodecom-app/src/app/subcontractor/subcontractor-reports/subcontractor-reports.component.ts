@@ -43,11 +43,34 @@ public yearEnd: Date;
     this.subcontractorsService.getKodeComAnnualInvoice(this.id, str);
   }
 
+  async onEmailAnnualInvoice()
+  {
+    var str = this.yearEnd.toLocaleDateString('en-GB').replace(/\//g, "-");
+    var result = await this.subcontractorsService.emailKodeComAnnualInvoice(this.id, str);
+
+    if (result == 'ok')
+      alert('Annual Invoice Email Sent!');
+    else
+      alert('Error Sending Annual Invoice!');
+  }
+
   onViewMonthlyStat()
   {
     var str = new Date(this.startDate).toLocaleDateString('en-GB').replace(/\//g, "-");
     var str2 = new Date(this.endDate).toLocaleDateString('en-GB').replace(/\//g, "-");
     this.subcontractorsService.getSubContractorMonthlyStat(this.id, str, str2);
+  }
+
+  async onEmailMonthlyStat()
+  {
+    var str = new Date(this.startDate).toLocaleDateString('en-GB').replace(/\//g, "-");
+    var str2 = new Date(this.endDate).toLocaleDateString('en-GB').replace(/\//g, "-");
+    var result = await this.subcontractorsService.emailSubContractorMonthlyStat(this.id, str, str2);
+
+    if (result == 'ok')
+      alert('Monthly Statement Email Sent!');
+    else
+      alert('Error Sending Monthly Statement!');
   }
 
 }

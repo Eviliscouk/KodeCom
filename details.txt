@@ -1,0 +1,36 @@
+paygenie
+im8Q92Nmz6 
+
+Website URL http://www.paygenieonline.co.uk
+http://paygenie.wwwnlss3.a2hosted.com
+Site Administration (cPanel) URL http://www.paygenieonline.co.uk/cpanel
+http://wwwnlss3.a2hosting.com/cpanel
+Nameservers ns1.a2hosting.com (104.255.198.1)
+ns2.a2hosting.com (192.190.94.1)
+ns3.a2hosting.com (104.255.198.2)
+ns4.a2hosting.com (192.190.94.2)
+
+Webmail URL http://www.paygenieonline.co.uk/webmail
+http://wwwnlss3.a2hosting.com/webmail 
+Incoming E-Mail Server
+(POP/POP-SSL/IMAP/IMAP-SSL) mail.paygenieonline.co.uk 
+Outgoing E-Mail Server
+(SMTP/SMTP-SSL) mail.paygenieonline.co.uk 
+SMTP Port: 465
+
+SSH Port 7822
+Hostname
+(SSH/FTP/POP/IMAP) nlss3.a2hosting.com
+Username
+(cPanel/SSH/FTP) paygenie
+Password
+(cPanel/SSH/FTP) im8Q92Nmz6 
+
+
+MYSql
+db - paygenie_KodeCom
+user - paygenie_payG
+password - Lilly82!
+
+notify@paygenieonline.co.uk
+paygenieMail1

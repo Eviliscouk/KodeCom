@@ -1,0 +1,1 @@
+export var   serviceRoot: string = '';//'https://kode-com-kerrjp.c9users.io';

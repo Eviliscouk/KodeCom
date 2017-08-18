@@ -117,6 +117,21 @@ var setupRoutes=function(app){
         
         });
         
+        app.post("/api/contractor/lockPayroll/", function(req,res){
+        
+        db.lockPayroll(req.body,function(err,data){
+           
+           if(err)
+           res.send(err);
+           else
+        
+            res.send(data);
+        
+        });
+        //res.send("ok");
+        
+        });
+        
         app.post("/api/contractorNote2/save/", function(req,res,next){
         
         var body='';
@@ -198,21 +213,17 @@ var setupRoutes=function(app){
            res.send(err)
            else
            {
-             var content = new Buffer(data[0].content,'base64');
-             
-             res.writeHead(200, {
+               res.writeHead(200, {
                         "Content-Disposition": util.format("attachment;filename=%s",data[0].fileName) 
-                      
                       , "Content-Type":util.format("%s",data[0].doctype)
                           
                       });
-                res.end(content,'base64');
-                
+                var readStream = fs.createReadStream(data[0].link);
+                readStream.pipe(res);
             }
            
            
            console.log('ok');
-        
         
         });
         
@@ -221,18 +232,10 @@ var setupRoutes=function(app){
         
         app.post("/api/contractorAttachment/delete/", passport.authenticationMiddleware(), function(req,res){
         console.log('deleting..');
-        var body='';
-        req.on('data',function(data){
-           body +=data;
-            
-        });
         
-        req.on('end', function () {
+        console.log(req.body);
         
-        var params = JSON.parse((body));
-        console.log(body);
-        
-        db.deleteContractorAttachment(params,function(err,data){
+        db.deleteContractorAttachment(req.body,function(err,data){
            
            if(err)
            res.send(err);
@@ -241,11 +244,6 @@ var setupRoutes=function(app){
             res.send(data);
         
         });
-        //res.send("ok");
-        
-        });
-        
-        
         
         });
         
@@ -256,8 +254,12 @@ var setupRoutes=function(app){
                 
                 
             //var html =util.format('<!DOCTYPE html><html lang="en"><body><h1>%s</h1><i>this is report...</i></body></html>',req.params.name);
-            var reportUrl = req.query.report;
-        
+            var reportUrl = util.format('%s%s',process.params.baseUrl,req.query.report);
+            var name = req.query.name;
+            
+            console.log(reportUrl);
+            console.log(name);
+            
             http.get(reportUrl,function(response){
                 var str = "";
                 var completeHtml ="";
@@ -274,7 +276,7 @@ var setupRoutes=function(app){
                  output.toBuffer(function(returnedBuffer) {
                      
                       res.writeHead(200, {
-                        "Content-Disposition": util.format("attachment;filename=%s",req.params.name + ".pdf") 
+                        "Content-Disposition": util.format("attachment;filename=%s",name + ".pdf") 
                       
                       , "Content-Type":util.format("%s","text/pdf")
                           
@@ -299,38 +301,23 @@ var setupRoutes=function(app){
         
         });  
         
+        app.get("/data/", function(req,res,next){
+                
+                 
+	    res.send('ok');
+
+        
+        });
+        
         app.get("/report2/:name?", function(req,res,next){
                 
-                  var address={
-                    DisplayName:'test',
-                    Address:'test',
-                    Town:'test',
-                    County:'test',
-                    PostCode:'test',
-                    Email:'test',
-                    WeekEnding:''
-                  };
-    
-                var contractor={
-                DisplayName:'displayname',
-                Address:'address:',
-                Town:'town',
-                County:'county',
-                PostCode:'postcode'
-                }
                 
-            var log ={logoPath:'/logo.png'}
-            
-            
-            
-            
-            var subContractor={services :[]}
-            
-            var payrollItem={gross:20.00}
-            var materials=[]
-	   res.render('./reports/SubContractorInvoice',{address:address,contractor:contractor,subContractor:subContractor,payrollItem:payrollItem,materials:materials
-	       
-	   });
+                http.get('/data/',function(statuscode, out){
+                     res.send(out);
+                    
+                });
+                 
+	  
 
         
         });
@@ -342,7 +329,27 @@ var setupRoutes=function(app){
     
 function saveFile(req,res,next){
     
-        var temppath = path.resolve('public');
+        var filename = req.headers['filename'];
+        var contentType = req.headers['content-type'];
+        var id = req.headers['object_id'];
+        var docPath = path.resolve('documents');
+        var dateTimeStr = new Date().getTime().toString();
+        var savedFileName = dateTimeStr + '_' + filename ;
+        docPath = path.join(docPath, savedFileName);
+        var writeStream = fs.createWriteStream(docPath, {flags: 'w'});
+        
+        req.pipe(writeStream, {end: false});
+        
+        req.on('end', function () {
+            // db save
+            var promise = db.saveContractorAttachmentLocation({id: id, filepath: docPath, name: filename, type: contentType});
+            promise.then(res.end('ok'),res.end('fail'));
+            
+            });
+        
+        
+    
+        /*var temppath = path.resolve('public');
         var filename = req.headers['filename'];
         var contentType = req.headers['content-type'];
         var id = req.headers['object_id'];
@@ -358,7 +365,7 @@ function saveFile(req,res,next){
             var promise = db.saveContractorAttachment({id: id, filepath: temppath, name: filename, type: contentType});
             promise.then(res.end('ok'),res.end('fail'));
             
-            });
+            });*/
     }
     
 

@@ -1,6 +1,6 @@
-<button class="btn btn-success btn-sm" type="button" (click)="onSubmit(f)" [disabled]="!f.valid || editMode && !f.dirty">Update</button>
-<button class="btn btn-danger btn-sm"  type="button" (click)="onDelete()"  *ngIf="editMode">Delete</button>
-<button class="btn btn-primary btn-sm" type="button" (click)="onClear()" *ngIf="!editMode">Clear</button>
+<button class="btn btn-success btn-sm" type="button" (click)="onSubmit(f)" [disabled]="!f.valid || !f.dirty">Update</button>
+<!--<button class="btn btn-danger btn-sm"  type="button" (click)="onDelete()"  *ngIf="editMode">Delete</button>-->
+<!--<button class="btn btn-primary btn-sm" type="button" (click)="onClear()" *ngIf="!editMode">Clear</button>-->
 <hr> 
 <div class="alert alert-success fade in" *ngIf="saveSuccess">
   <strong>{{ message }}</strong>

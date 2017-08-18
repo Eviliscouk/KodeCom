@@ -8,6 +8,7 @@ import 'rxjs/Rx';
 import { Subject } from 'rxjs/Subject';
 import {Observable} from 'rxjs/Rx';
 import 'rxjs/add/operator/map';
+import * as glob from "../shared/globals";
 
 @Injectable()
 export class SubContractorService {
@@ -15,10 +16,11 @@ export class SubContractorService {
     subContractorsChanged = new Subject<number>();
     subcontractorAttachmentsChanged = new Subject<number>();
     headers = new Headers();
-    root = 'https://kode-com-kerrjp.c9users.io';
+    root = '';//'https://kode-com-kerrjp.c9users.io';
 
   constructor(private http: Http) {
     this.headers.append('Content-Type', 'application/json');
+    this.root = glob.serviceRoot;
    }
   
   getSubContractors(id: number) : Observable<SubContractor[]>{
@@ -45,12 +47,28 @@ export class SubContractorService {
     return this.http.get(this.root+'/api/subcontractorAttachments/get/'+id).map((res:Response) => res.json());
   }
 
+  getSubContractorAttachment(id: number)
+  {
+    console.log('getSubContractorAttachment');
+    console.log(id);
+    //return this.http.get(this.root+'/api/contractorAttachment/get/'+id).map((res:Response) => {
+    window.open(this.root+'/api/contractorAttachment/get/'+id);
+    //});
+  }
+
   async getInvoice(id: number) {
     const response = await this.http.get(this.root+'/api/reports/subContractorInvoice/'+id).toPromise();
     var x=window.open();
     console.log(response.text());
     x.document.open().write(response.text());
     x.document.close();
+  }
+
+  async emailInvoice(id: number) {
+    var obj = {id:id};
+    const response = await this.http.post(this.root+'/api/reports/email/subContractorInvoice/', obj, { headers: this.headers }).toPromise();
+    var result = response.text();
+    return result;
   }
   
 async getKodeComAnnualInvoice(id: number, date: string) {
@@ -61,6 +79,13 @@ async getKodeComAnnualInvoice(id: number, date: string) {
     x.document.close();
   }
 
+  async emailKodeComAnnualInvoice(id: number, date: string) {
+    var obj = {id:id, date:date};
+    const response = await this.http.post(this.root+'/api/reports/email/KodeComAnnualInvoice/', obj, { headers: this.headers }).toPromise();
+    var result = response.text();
+    return result;
+  }
+
   async getSubContractorMonthlyStat(id: number, startDate: string, endDate: string) {
     console.log('requesting invoice');
     const response = await this.http.get(this.root+'/api/reports/subContractorMonthlyStatement/'+id+'/'+startDate+'/'+endDate).toPromise();
@@ -68,6 +93,13 @@ async getKodeComAnnualInvoice(id: number, date: string) {
     console.log(response.text());
     x.document.open().write(response.text());
     x.document.close();
+  }
+
+  async emailSubContractorMonthlyStat(id: number, startDate: string, endDate: string) {
+    var obj = {id:id, startDate:startDate, endDate:endDate};
+    const response = await this.http.post(this.root+'/api/reports/email/subContractorMonthlyStatement/', obj, { headers: this.headers }).toPromise();
+    var result = response.text();
+    return result;
   }
 
   async updateSubContractor(values: string): Promise<string>{ 

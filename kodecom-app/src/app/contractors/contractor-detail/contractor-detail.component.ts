@@ -18,8 +18,7 @@ export class ContractorDetailComponent implements OnInit, OnDestroy {
   private contractorAttachmentSub: Subscription;
   contractor: Contractor;
   id: number;
-  newNote: string;
-  
+  newNote: string;  
 
   constructor(private contractorsService: ContractorService,
               private route: ActivatedRoute,

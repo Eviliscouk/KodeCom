@@ -1,6 +1,6 @@
-  <button class="btn btn-success btn-sm" type="button" (click)="onSubmit(f)" [disabled]="!f.valid || editMode && !f.dirty">Submit</button>
-  <button class="btn btn-info btn-sm" (click)="reloadItems()">Reload</button>
-  <button class="btn btn-info btn-sm" (click)="onViewContractor()">View Contractor</button>
+  <button class="btn btn-success btn-sm" type="button" (click)="onSubmit(f)" [disabled]="!f.valid || !f.dirty">Submit</button>
+  <button class="btn btn-primary btn-sm" (click)="reloadItems()">Reload</button>
+  <button class="btn btn-primary btn-sm" (click)="onViewContractor()">View Contractor</button>
       <hr>
   <div class="panel-group restricted-height">
     <div class="panel panel-default">

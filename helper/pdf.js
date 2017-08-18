@@ -9,6 +9,7 @@
       paperSize: {
         format: 'A4',
         orientation: 'landscape', // portrait
+        delay: 1500,
       }
     };
   

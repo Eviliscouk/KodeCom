@@ -2,7 +2,7 @@ function authenticationMiddleware () {
   
   
   return function (req, res, next) {
-    return next();
+    //return next();
     if (req.isAuthenticated()) {
       return next()
     }

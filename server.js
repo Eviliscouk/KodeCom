@@ -14,6 +14,30 @@ app.use(express.logger('dev')); // log every request to the console
 app.use(express.cookieParser()); // read cookies (needed for auth)
 app.use(express.bodyParser()); // get information from html forms
 
+var env = process.argv[2] || "dev";
+
+process.params ={};
+ process.params.env = env;
+if (process.params.env=="prod")
+{
+    process.params.baseUrl ="http://kode-com-kerrjp.c9users.io";
+    process.params.logoUrl = process.params.baseUrl + '/images/KodeCom.png';
+    
+}
+else if (process.params.env =="dev")
+{
+    
+   process.params.baseUrl ="http://kode-com-kerrjp.c9users.io";
+   process.params.logoUrl = process.params.baseUrl + '/images/KodeCom.png';
+}
+else 
+{
+    
+   process.params.baseUrl ="http://kode-com-kerrjp.c9users.io";
+}
+
+console.log(JSON.stringify(process.params));
+
 app.use( express.static( "public" ) );
 
 
