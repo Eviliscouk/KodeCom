@@ -1,6 +1,6 @@
 {
   "name": "kode-com",
-  "version": "1.0.2",
+  "version": null,
   "description": "kode com applicaiton",
   "main": "server.js",
   "scripts": {
@@ -55,7 +55,7 @@
     "nedb": "^1.8.0",
     "node-adodb": "^3.0.3",
     "node-cache": "^3.2.1",
-    "nodemailer": "^0.7.1",
+    "nodemailer": "^4.0.1",
     "nosql": "^5.0.0",
     "oauth": "^0.9.14",
     "passport": "^0.3.2",
