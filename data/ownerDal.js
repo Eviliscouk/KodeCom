@@ -16,7 +16,7 @@ dal.saveContractor=function(param,cb){
 
 dal.getOwner=function(param,cb){
     
-    var sql = "select * from KodeCom.Owner limit 1;";
+    var sql = "select * from Owner limit 1;";
 
     console.log(sql);
     db.run({sql:sql},function(err,result){
@@ -40,7 +40,7 @@ dal.saveOwner=function(param,cb){
         "email":"deborah.mallet@btconnect.com","utr":"7721008666","tlcIns":5,"fee":"20","payerType":"Net Payer"}
 
   */
-    sql = "insert into KodeCom.Owner(owner_name,address,town,county,";
+    sql = "insert into Owner(owner_name,address,town,county,";
     sql +="postcode,country,telUK,faxUK,telOverseas,faxOverseas";
     sql +=") values (";
     
@@ -54,7 +54,7 @@ dal.saveOwner=function(param,cb){
     
     else
     {
-        sql = "update KodeCom.Owner set ";
+        sql = "update Owner set ";
         sql += util.format("owner_name='%s',",param.owner_name);
         sql += util.format("address='%s',",param.address);
         sql += util.format("town='%s',",param.town);

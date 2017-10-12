@@ -29,18 +29,7 @@ var setupRoutes=function(app){
         
        app.post("/api/owner/save/",passport.authenticationMiddleware(),function(req,res){
            console.log('saving..');
-            var body='';
-            req.on('data',function(data){
-               body +=data;
-                
-            });
-            
-            req.on('end', function () {
-           
-            var params = JSON.parse((body));
-            console.log(body);
-            
-            db.saveOwner(params,function(err,data){
+            db.saveOwner(req.body,function(err,data){
                
                if(err)
                res.send(err)
@@ -48,9 +37,6 @@ var setupRoutes=function(app){
 
                 res.send(data);
     
-        });
-            //res.send("ok");
-            
         });
     });
     

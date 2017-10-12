@@ -5,7 +5,7 @@
     dal.getUserFromDb=function(username,cb){
     
     console.log('checkingUser');
-    var sql = "select id, username, password from KodeCom.User where username='";
+    var sql = "select id, username, password from User where username='";
     sql += username + "' limit 1;";
     
     console.log("db script: %s",sql);

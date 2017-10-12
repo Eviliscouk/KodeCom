@@ -1,0 +1,32 @@
+<div class="panel-group restricted-height">
+    <div class="panel panel-default">
+      <div class="panel-heading">Batch Entry</div>
+      <div class="panel-body">
+        <div class="table-responsive">
+  <table class="table table-striped table-hover table-bordered">
+          <thead>
+            <tr>
+              <td>Batch</td>
+              <td>Status</td>
+              <td>User</td>
+              <td></td>
+              <tr>
+                </thead>
+              <tr *ngFor="let batch of batches" [class.success]="batch.status == 'Complete'" [class.danger]="batch.status != 'Complete'">
+                <td>
+                  {{batch.fileName}}
+                  </td>
+                  <td>
+                    {{batch.status}}
+                    </td>
+                    <td>
+                    {{batch.userName}}
+                    </td>
+                <td><button class="btn btn-primary btn-sm" [disabled]="batch.status != 'Complete'" type="button" (click)="getBatch(batch.id)">Download</button>
+                <button class="btn btn-danger btn-sm" [disabled]="batch.status != 'Complete'" type="button" (click)="deleteBatch(batch.id)">Delete</button></td>
+              </tr>
+  </table>
+  </div>
+</div>
+</div>
+</div>

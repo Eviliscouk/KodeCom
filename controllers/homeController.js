@@ -19,7 +19,7 @@ var setupRoutes=function(app){
      
      app.get("/home/", passport.authenticationMiddleware(), function(req,res){
            var user = req.user;
-           res.render("home",{title:"home page",user:user});
+           res.render("home",{title:"home page",user:user,env:process.params.env});
            
            
         });   

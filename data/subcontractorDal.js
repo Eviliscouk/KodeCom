@@ -13,22 +13,22 @@ dal.saveSubContractor=function(param,cb){
     if (!param.id)
     {
         
-    sql = "insert into KodeCom.SubContractor(contractor_id, company_name,first_name,surname,address,town,county,";
-    sql +="postCode,phone,mobile,fax,email,utr,nino,verification_no, deduction_rate, vat_rate, services, active, contract_recd";
+    sql = "insert into SubContractor(contractor_id, company_name,first_name,surname,address,town,county,";
+    sql +="postCode,phone,mobile,fax,email,utr,nino,companyRegNo,verification_no, deduction_rate, vat_rate, services, active, contract_recd";
     sql +=") values (";
     
     
     
-    sql += util.format("'%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s', '%s', '%s', '%s', '%s');",
+    sql += util.format("'%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s', '%s', '%s', '%s', '%s');",
     param.cid ,param.companyName,	param.firstName,	param.surname,	param.address,	param.town,	param.county,	param.postcode,	param.phone,
-    param.mobPhone,param.fax,	param.email,	param.utr,	param.nino,	param.verificationNo, 	param.deductionRate, param.vatRate, param.services, param.active, param.contractRecd
+    param.mobPhone,param.fax,	param.email,	param.utr,	param.nino, param.companyRegNo,	param.verificationNo, 	param.deductionRate, param.vatRate, param.services, param.active, param.contractRecd
     );
     
     }
     
     else
     {
-        sql = "update KodeCom.SubContractor set ";
+        sql = "update SubContractor set ";
         sql += util.format("company_name='%s',",param.companyName);
         sql += util.format("first_name='%s',",param.firstName);
         sql += util.format("surname='%s',",param.surname);
@@ -42,6 +42,7 @@ dal.saveSubContractor=function(param,cb){
         sql += util.format("email='%s',",param.email);
         sql += util.format("utr='%s',",param.utr);
         sql += util.format("nino='%s',",param.nino);
+        sql += util.format("companyRegNo='%s',",param.companyRegNo);
         sql += util.format("verification_no='%s',",param.verificationNo);
         sql += util.format("deduction_rate='%s',",param.deductionRate);
         sql += util.format("vat_rate='%s',",param.vatRate);
@@ -65,7 +66,7 @@ dal.saveSubContractor=function(param,cb){
 dal.getSubContractorList=function(param,cb){
 
     var sql ='';
-    sql = util.format("select id as s_ID, IF(company_name NOT IN ('', 'NONE', 'None', 'none'), company_name, CONCAT(first_name, ', ', surname)) as displayName from KodeCom.SubContractor where contractor_id = %s", param.id);
+    sql = util.format("select s.id as s_ID, IF(s.company_name NOT IN ('', 'NONE', 'None', 'none'), s.company_name, CONCAT(s.first_name, ', ', s.surname)) as displayName, s.deduction_rate as deductionRate, s.vat_rate as vatRate, c.fee as fee from SubContractor AS s INNER JOIN Contractor AS c ON s.contractor_id = c.id where contractor_id = %s", param.id);
     
     
     if (param.active && param.active !=2)
@@ -85,7 +86,7 @@ dal.getSubContractorList=function(param,cb){
 
 dal.getSubContractor=function(param,cb){
     
-    var cmd = util.format("select id as s_ID, contractor_id as c_ID, company_name as companyName, IF(company_name NOT IN ('', 'NONE', 'None', 'none'), company_name, CONCAT(first_name, ', ', surname)) as displayName, first_name as firstName,surname,address,town,county,postCode as postcode,phone,mobile as mobPhone,fax,email,utr, nino, verification_no as verificationNo, deduction_rate as deductionRate, vat_rate as vatRate, services, active, contract_recd as contractRecd from KodeCom.SubContractor where id = %s limit 1;", param);
+    var cmd = util.format("select id as s_ID, contractor_id as c_ID, company_name as companyName, IF(company_name NOT IN ('', 'NONE', 'None', 'none'), company_name, CONCAT(first_name, ', ', surname)) as displayName, first_name as firstName,surname,address,town,county,postCode as postcode,phone,mobile as mobPhone,fax,email,utr, nino, companyRegNo, verification_no as verificationNo, deduction_rate as deductionRate, vat_rate as vatRate, services, active, contract_recd as contractRecd from SubContractor where id = %s limit 1;", param);
     console.log(cmd);
     db.run({sql:cmd},function(err,result){
     if(err) return cb(err);
@@ -96,7 +97,8 @@ dal.getSubContractor=function(param,cb){
 
 dal.getSubContractorContractorId=function(param,cb){
     
-    var cmd = util.format("select contractor_id as c_ID from KodeCom.SubContractor where id = %s limit 1;", param.id);
+    var cmd = "select sub.contractor_id as c_ID, sub.deduction_rate as deductionRate, sub.vat_rate as vatRate, con.fee as fee from SubContractor as sub INNER JOIN Contractor AS con ON sub.contractor_id = con.id ";
+    cmd += util.format("where sub.id = %s limit 1;", param.id);
     console.log(cmd);
     db.run({sql:cmd},function(err,result){
     if(err) return cb(err);
@@ -108,7 +110,7 @@ dal.getSubContractorContractorId=function(param,cb){
 dal.getSubContractorNotes=function(param,cb){
     
     var sql = "select id as n_ID,notes as text,dated as n_date";
-    sql +=" from KodeCom.Documents ";
+    sql +=" from Documents ";
     if ( param.id)
      sql += util.format(" where  (object_id =%d and object_type = 'subContractor' and notes > '') order by dated desc",param.id);
      
@@ -128,7 +130,7 @@ dal.getSubContractorNotes=function(param,cb){
 dal.saveSubContractorNote=function(param,cb){
     
     var sql ='';
-    sql = "insert into KodeCom.Documents(object_id, object_type, notes)";
+    sql = "insert into Documents(object_id, object_type, notes)";
     sql +=" values (";
     
     sql += util.format("'%s','subContractor','%s');",param.s_ID, param.text);
@@ -148,7 +150,7 @@ dal.deleteSubContractorAttachment=function(param,cb){
         if (err) return cb(err);
         
             var sql ='';
-            sql = util.format("delete from KodeCom.Documents where id = %s; ", param.id);
+            sql = util.format("delete from Documents where id = %s; ", param.id);
             console.log("db script: %s",sql);
             
             db.run({sql:sql},function(err,data){
@@ -164,7 +166,7 @@ dal.deleteSubContractorAttachment=function(param,cb){
 var getSubContractorAttachmentFilePath=function(param,cb){
     
     var sql = "select link";
-    sql +=" from KodeCom.Documents ";
+    sql +=" from Documents ";
      sql += util.format(" where id = %s;",param.id);
     
     console.log("db script: %s",sql);
@@ -179,7 +181,7 @@ var getSubContractorAttachmentFilePath=function(param,cb){
 dal.getSubContractorAttachments=function(param,cb){
     
     var sql = "select id,display_name as fileName, dated as a_date";
-    sql +=" from KodeCom.Documents ";
+    sql +=" from Documents ";
      sql += util.format(" where  (object_id =%d and object_type = 'subcontractor' and link is not null) order by dated desc",param.id);
     
     console.log("db script: %s",sql);
@@ -198,7 +200,7 @@ dal.saveSubContractorAttachmentLocation=function(param){
     console.log('saving attachment');
     console.log(param.filepath);
     
-    var sql = 'insert into KodeCom.Documents SET ?';
+    var sql = 'insert into Documents SET ?';
     
     console.log(param.filepath);
     

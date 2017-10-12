@@ -28,8 +28,7 @@
 	  @model.con_county<br />
 	  @model.con_postcode<br />
 	</p>
-    <hr/>
-    <table>
+    <table class="topAndBottom">
       <tr><td><strong>Description</strong></td><td><strong></strong></td><td><strong>Amount</strong></td></tr>
 	  <tr class="odd">
 	   <td> @model.sub_services</td> 
@@ -46,8 +45,12 @@
 	  <td><strong>Total</strong></td> 
 	  <td>@model.pay_total</td>
 	  </tr>
+	  <tr class="special1"><td colspan="3"><div></div></td></tr>
+    <tr class="even"><td><strong>Statement</strong></td><td></td><td></td></tr>
+    <tr class="odd"><td><strong></strong></td><td><strong>Total </strong></td><td> @model.pay_total</td></tr>
+    <tr class="even"><td><strong></strong></td><td><strong>Plus VAT</strong></td><td class="special"><div>@model.pay_vat</div></td></tr>
+    <tr class="odd"><td><strong></strong></td><td><strong>Total Amount</strong></td><td><div>@model.pay_totalWithVat</div></td></tr>
     </table>
-    <hr/>
     <p>
       Thank you for your order!  This transaction will appear on your billing statement as "Your Company".<br />
       If you have any questions, please feel free to contact us at <a href="mailto:youremail@somewhere.com">youremail@somewhere.com</a>.

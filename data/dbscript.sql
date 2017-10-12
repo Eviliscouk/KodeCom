@@ -1,5 +1,5 @@
 create table Owner(
-id int primary key auto_increment,
+id int primary key auto_increment (1),
 dated timestamp default current_timestamp,
 owner_name varchar(100),
 address varchar(100),
@@ -16,7 +16,7 @@ faxOverseas varchar(15)
 
 create table Contractor(
 
-id int primary key ,
+id int primary key auto_increment (1),
 dated timestamp default current_timestamp,
 deleted_datetime timestamp ,
 deleted bit,
@@ -41,7 +41,7 @@ notes text
 
 create table Payroll
 (
-id int primary key auto_increment,
+id int primary key auto_increment (1),,
 dated timestamp default current_timestamp,
 contractor_id int,
 subcontractor_id int,
@@ -59,7 +59,7 @@ locked bool
 
 
 create table SubContractor(
-id int primary key auto_increment,
+id int primary key auto_increment (1),,
 dated timestamp default current_timestamp,
 contractor_id int,
 company_name varchar(100),
@@ -86,7 +86,7 @@ notes text
 
 create table Documents
 (
-id int primary key auto_increment,
+id int primary key auto_increment (1),,
 dated timestamp default current_timestamp,
 object_id int,
 object_type varchar(35), 
@@ -104,6 +104,12 @@ payroll_id INT NOT NULL,
 description VARCHAR(255),
 amount float(15,3) NOT NULL
 );
+
+CREATE TABLE Batch(
+id int primary key AUTO_INCREMENT, 
+dated timestamp default current_timestamp,
+fileName VARCHAR(100) NOT NULL, username varchar(15),
+isComplete bit(1));
 
 CREATE TABLE User (
 id int primary key AUTO_INCREMENT, 

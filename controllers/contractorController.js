@@ -16,22 +16,15 @@
 var setupRoutes=function(app){
     
        console.log("setting up contractors route");
-    //   app.get("/api/getContractors/",function(req,res){
+       app.get("/test/",function(req,res,next){
+           console.log('in here');
+           res.send('ok');
+           next();
            
-    //       db.getContractor({},function(err,data){
-               
-    //           if(err)
-    //           res.send(err);
-    //           else
-
-    //             res.send(data);
-    
-    //     });
-           
-    //     }); 
+         }); 
         
         app.get("/api/getContractorNames/",passport.authenticationMiddleware(), function(req,res){
-        
+        console.log('getting Names');
         db.getContractorList({},function(err,data){
            
            if(err)
@@ -76,31 +69,19 @@ var setupRoutes=function(app){
         
         
         app.post("/api/contractor/save/",passport.authenticationMiddleware(), function(req,res){
-        console.log('saving..');
-        var body='';
-        req.on('data',function(data){
-           body +=data;
+            console.log('saving..');
+            console.log(JSON.stringify());
+            var body='';
             
+            db.saveContractor(req.body,function(err,data){
+               
+            if(err)
+                res.send(err);
+            else
+                res.send(data);
+            });
         });
         
-        req.on('end', function () {
-        
-        var params = JSON.parse((body));
-        console.log(body);
-        
-        db.saveContractor(params,function(err,data){
-           
-           if(err)
-           res.send(err);
-           else
-        
-            res.send(data);
-        
-        });
-        //res.send("ok");
-        
-        });
-        });
         
         app.post("/api/contractorNote/save/", function(req,res){
         
@@ -164,27 +145,14 @@ var setupRoutes=function(app){
         
         app.post("/api/contractor/delete/",passport.authenticationMiddleware(), function(req,res){
         console.log('deleting..');
-        var body='';
-        req.on('data',function(data){
-           body +=data;
-            
-        });
         
-        req.on('end', function () {
-        
-        var params = JSON.parse((body));
-        console.log(body);
-        
-        db.deleteContractor(params,function(err,data){
+        db.deleteContractor(req.body,function(err,data){
            
            if(err)
            res.send(err);
            else
         
             res.send(data);
-        
-        });
-        //res.send("ok");
         
         });
         
@@ -262,17 +230,19 @@ var setupRoutes=function(app){
             
             http.get(reportUrl,function(response){
                 var str = "";
-                var completeHtml ="";
+                
                 response.on('data', function (chunk) {
                     str += chunk;
+                    console.log('Added this data to html = ' + chunk);
                   });
                 
                   response.on('end', function () {
-                    var completeHtml = str;
+                    console.log('recieved all html!')
+                    //console.log('html from get = ' + str);
                     // your code here if you want to use the results !
                     
-                    pdf.render({html:completeHtml},function(err,output){
-                    //pdf.testPdf({html:completeHtml},function(err,output){
+                    pdf.render({html:str},function(err,output){
+                    //pdf.testPdf({html:str},function(err,output){
                  output.toBuffer(function(returnedBuffer) {
                      
                       res.writeHead(200, {
@@ -309,13 +279,26 @@ var setupRoutes=function(app){
         
         });
         
-        app.get("/report2/:name?", function(req,res,next){
+        app.get("/report2/", function(req,res,next){
                 
+                var name = 'test';
+                var str = '';
+                pdf.testPdf({html:str},function(err,output){
+                 output.toBuffer(function(returnedBuffer) {
+                     
+                      res.writeHead(200, {
+                        "Content-Disposition": util.format("attachment;filename=%s",name + ".pdf") 
+                      
+                      , "Content-Type":util.format("%s","text/pdf")
+                          
+                      });
+              
+                     
+                     res.end(returnedBuffer);
+                    next();
+                });                
                 
-                http.get('/data/',function(statuscode, out){
-                     res.send(out);
-                    
-                });
+            })
                  
 	  
 

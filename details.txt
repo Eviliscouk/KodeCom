@@ -34,3 +34,15 @@ password - Lilly82!
 
 notify@paygenieonline.co.uk
 paygenieMail1
+
+
+nohup npm start &
+
+mysql-ctl cli
+forever stop all
+
+ng build --prod --aot --output-hashing none
+
+mysql -u paygenie_payG -p   
+
+ssh paygenie@nlss3.a2hosting.com -p 7822

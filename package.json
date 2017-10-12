@@ -4,7 +4,7 @@
   "description": "kode com applicaiton",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js",
+    "start": "forever server.js dev",
     "test": "mocha ./tests/",
     "dev": "node server.js debug"
   },
@@ -15,6 +15,7 @@
   "author": "",
   "dependencies": {
     "@google-cloud/storage": "^0.8.0",
+    "archiver": "^2.0.3",
     "async": "~0.2.8",
     "axios": "^0.15.3",
     "body-parser": "^1.17.1",
@@ -26,6 +27,7 @@
     "colors": "^1.1.2",
     "connect-busboy": "0.0.2",
     "connect-flash": "^0.1.1",
+    "connect-timeout": "^1.9.0",
     "cookie-parser": "^1.4.3",
     "cors": "^2.8.4",
     "crawler": "^1.0.2",
@@ -37,6 +39,7 @@
     "express": "^3.21.2",
     "express-fileupload": "0.1.2",
     "express-mysql-session": "^1.2.1",
+    "express-zip": "^2.0.1",
     "font-awesome": "^4.7.0",
     "geoip-lite": "^1.1.9",
     "goo.gl": "^0.1.4",
@@ -55,6 +58,7 @@
     "nedb": "^1.8.0",
     "node-adodb": "^3.0.3",
     "node-cache": "^3.2.1",
+    "node-zip": "^1.1.1",
     "nodemailer": "^4.0.1",
     "nosql": "^5.0.0",
     "oauth": "^0.9.14",

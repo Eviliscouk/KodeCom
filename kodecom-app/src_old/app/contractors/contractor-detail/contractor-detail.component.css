@@ -1,0 +1,12 @@
+
+.restricted-height{
+  height:auto;
+  max-height:700px;
+  overflow-y:auto;
+}
+
+.small-restricted-height{
+  height:auto;
+  max-height:200px;
+  overflow-y:auto;
+}

@@ -1,0 +1,17 @@
+<button class="btn btn-success btn-sm" (click)="onNewContractor()">New Contractor</button>
+<hr>
+<div class="row">
+  
+    <input type="text" id="inputDisplayName" class="form-control" [(ngModel)]="diplayNameFilter"/>
+  
+</div>
+<div class="row">
+  
+    <div class="list-group restricted-height" >
+      <app-contractor-item 
+        *ngFor="let contractorEl of contractorNames | filterDisplayNamePipe: diplayNameFilter"
+        [contractorName]="contractorEl"
+        ></app-contractor-item>
+      </div>
+  
+</div>

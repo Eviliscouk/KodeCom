@@ -1,0 +1,6 @@
+
+.restricted-height{
+  height:auto;
+  max-height:700px;
+  overflow-y:auto;
+}

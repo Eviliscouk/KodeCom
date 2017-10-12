@@ -13,6 +13,7 @@
         <link rel="stylesheet" href="/node_modules/bootstrap/dist/css/bootstrap.min.css"/>
         <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
         <link rel="stylesheet" type="text/css" href="/node_modules/font-awesome/css/font-awesome.min.css">
+        <link rel="stylesheet" type="text/css" href="../angular/styles.bundle.css">
         <link rel="stylesheet" href="/css/site.css"/>
         @html.block("css")
          

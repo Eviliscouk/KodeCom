@@ -2,11 +2,12 @@
     
     
 var mysql = require('mysql'),
-    dbConfig = {
+  dbConfig = {
   host: "localhost",
   user: "kerrjp",
   password: "",
   database:"KodeCom",
+  timezone:"UTC+0",
   multipleStatements: true
 };
    

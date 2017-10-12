@@ -1,0 +1,56 @@
+<div class="panel-group">
+    <div class="panel panel-default">
+      <div class="panel-heading"><strong>Batch Reports</strong></div>
+      <div class="panel-body">
+<div class="table-responsive">
+        <table>
+          <tbody>
+            <tr>
+                <td>
+                  <strong>
+                    Monthly Return
+                    </strong>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  Month End:
+                </td>
+                <td>&nbsp;</td>
+                <td>
+                  <input type="date" id="monthEnd" class="form-control" name="monthEnd" [ngModel] ="monthEnd | date:'yyyy-MM-dd'" (ngModelChange)="monthEnd = $event"  required>
+                </td>
+                <td rowspan="2">&nbsp;</td>
+                <td>
+                  <button class="btn btn-success btn-sm" (click)="onRunMonthlyReturn()">Run</button>
+                </td>
+              </tr>
+              <tr>
+                <td>&nbsp;</td>
+              </tr>
+              <tr>
+                <td>
+                  <strong>
+                    Weekly Remittance
+                    </strong>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  Payment Date:
+                </td>
+                <td>&nbsp;</td>
+                <td>
+                  <input type="date" id="paymentDate" class="form-control" name="paymentDate" [ngModel] ="paymentDate | date:'yyyy-MM-dd'" (ngModelChange)="paymentDate = $event"  required>
+                </td>
+                <td rowspan="2">&nbsp;</td>
+                <td>
+                  <button class="btn btn-success btn-sm" (click)="onRunWeeklyRemittance()">Run</button>
+                </td>
+              </tr>
+          </tbody>
+        </table>
+</div>
+      </div>
+    </div>
+</div>

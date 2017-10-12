@@ -82,27 +82,13 @@ var setupRoutes=function(app){
         
         app.post("/api/SubContractor/save/",passport.authenticationMiddleware(),function(req,res){
         console.log('saving..');
-        var body='';
-        req.on('data',function(data){
-           body +=data;
-            
-        });
-        
-        req.on('end', function () {
-        
-        var params = JSON.parse((body));
-        console.log(body);
-        
-        db.saveSubContractor(params,function(err,data){
+        db.saveSubContractor(req.body,function(err,data){
            
            if(err)
            res.send(err)
            else
         
             res.send(data);
-        
-        });
-        //res.send("ok");
         
         });
         });
@@ -123,27 +109,13 @@ var setupRoutes=function(app){
         
         app.post("/api/SubContractor/delete/",passport.authenticationMiddleware(),function(req,res){
         console.log('deleting..');
-        var body='';
-        req.on('data',function(data){
-           body +=data;
-            
-        });
-        
-        req.on('end', function () {
-        
-        var params = JSON.parse((body));
-        console.log(body);
-        
-        db.deleteSubContractor(params,function(err,data){
+        db.deleteSubContractor(req.body,function(err,data){
            
            if(err)
            res.send(err)
            else
         
             res.send(data);
-        
-        });
-        //res.send("ok");
         
         });
         

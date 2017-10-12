@@ -1,0 +1,12 @@
+.table tr.active td {
+  background-color:#123456 !important;
+  color: white;
+}
+
+.table td {
+   text-align: center;   
+}
+
+.table th {
+   text-align: center;   
+}

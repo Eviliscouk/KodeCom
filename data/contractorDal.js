@@ -18,7 +18,7 @@ dal.saveContractor=function(param,cb){
 
 dal.getContractorList=function(param,cb){
     
-    var sql = "select id as c_ID, IF(company_name NOT IN ('', 'NONE', 'None', 'none'), company_name, CONCAT(first_name, ', ', surname)) as displayName from KodeCom.Contractor where (1=1) and (ifnull(deleted,0)=0)";
+    var sql = "select id as c_ID, IF(company_name NOT IN ('', 'NONE', 'None', 'none'), company_name, CONCAT(first_name, ', ', surname)) as displayName from Contractor where (1=1) and (ifnull(deleted,0)=0)";
     sql += param.id != undefined?" or id = " + param.id  : "";
     sql += ";";
 
@@ -55,7 +55,7 @@ dal.getContractor=function(param,cb){
     
     var sql = "select id as c_ID,company_name as companyName,first_name as firstName,surname,address,town,county,";
     sql +="postCode as postcode,phone,mobile as mobPhone,fax,email,utr,tlcins as tlcIns,payer_type as payerType, fee,";
-    sql +="IF(company_name NOT IN ('', 'NONE', 'None', 'none'), company_name, CONCAT(first_name, ', ', surname)) as displayName from KodeCom.Contractor ";
+    sql +="IF(company_name NOT IN ('', 'NONE', 'None', 'none'), company_name, CONCAT(first_name, ', ', surname)) as displayName from Contractor ";
     if ( param.id)
     
      sql += util.format(" where  (id =%d) %s ",param.id," limit 1;");
@@ -76,7 +76,7 @@ dal.getContractor=function(param,cb){
 dal.getContractorNotes=function(param,cb){
     
     var sql = "select id as n_ID,notes as text,dated as n_date";
-    sql +=" from KodeCom.Documents ";
+    sql +=" from Documents ";
     if ( param.id)
      sql += util.format(" where  (object_id =%d and object_type = 'contractor' and notes > '') order by dated desc",param.id);
      
@@ -96,7 +96,7 @@ dal.getContractorNotes=function(param,cb){
 dal.getContractorAttachments=function(param,cb){
     
     var sql = "select id,display_name as fileName, dated as a_date";
-    sql +=" from KodeCom.Documents ";
+    sql +=" from Documents ";
      sql += util.format(" where  (object_id =%d and object_type = 'contractor' and link is not null) order by dated desc",param.id);
     
     console.log("db script: %s",sql);
@@ -111,7 +111,7 @@ dal.getContractorAttachments=function(param,cb){
 dal.getContractorAttachment=function(param,cb){
     
     var sql = "select display_name as fileName,doctype,link";
-    sql +=" from KodeCom.Documents ";
+    sql +=" from Documents ";
      sql += util.format(" where id = %s;",param.id);
     
     console.log("db script: %s",sql);
@@ -129,7 +129,7 @@ dal.saveContractorAttachmentLocation=function(param){
     console.log('saving attachment');
     console.log(param.filepath);
     
-    var sql = 'insert into KodeCom.Documents SET ?';
+    var sql = 'insert into Documents SET ?';
     
     console.log(param.filepath);
     
@@ -162,7 +162,7 @@ dal.saveContractorAttachment=function(param){
     console.log('saving attachment');
     console.log(param.filepath);
     
-    var sql = 'insert into KodeCom.Documents SET ?';
+    var sql = 'insert into Documents SET ?';
     
     console.log(param.filepath);
     
@@ -194,7 +194,7 @@ dal.saveContractorAttachment=function(param){
 dal.saveContractorNote=function(param,cb){
     
     var sql ='';
-    sql = "insert into KodeCom.Documents(object_id, object_type, notes)";
+    sql = "insert into Documents(object_id, object_type, notes)";
     sql +=" values (";
     
     sql += util.format("'%s','contractor','%s');",param.c_ID, param.text);
@@ -210,7 +210,7 @@ dal.saveContractorNote=function(param,cb){
 dal.lockPayroll=function(param,cb){
     
     var sql ='';
-    sql = "UPDATE KodeCom.Payroll SET locked = -1 ";
+    sql = "UPDATE Payroll SET locked = -1 ";
     sql += util.format("WHERE contractor_id = %s ", param.id);
     sql += util.format("and payment_date between STR_TO_DATE(%s,", param.fromDate);
     sql += "'%d/%m/%Y') and STR_TO_DATE(";
@@ -239,7 +239,7 @@ dal.saveContractor=function(param,cb){
         "email":"deborah.mallet@btconnect.com","utr":"7721008666","tlcIns":5,"fee":"20","payerType":"Net Payer"}
 
   */
-    sql = "insert into KodeCom.Contractor(company_name,first_name,surname,address,town,county,";
+    sql = "insert into Contractor(company_name,first_name,surname,address,town,county,";
     sql +="postCode,phone,mobile,fax,email,utr,tlcins,payer_type, fee";
     sql +=") values (";
     
@@ -254,7 +254,7 @@ dal.saveContractor=function(param,cb){
     
     else
     {
-        sql = "update KodeCom.Contractor set ";
+        sql = "update Contractor set ";
         sql += util.format("company_name='%s',",param.companyName);
         sql += util.format("first_name='%s',",param.firstName);
         sql += util.format("surname='%s',",param.surname);
@@ -290,7 +290,7 @@ dal.deleteContractorAttachment=function(param,cb){
         if (err) return cb(err);
         
             var sql ='';
-            sql = util.format("delete from KodeCom.Documents where id = %s; ", param.id);
+            sql = util.format("delete from Documents where id = %s; ", param.id);
             console.log("db script: %s",sql);
             
             db.run({sql:sql},function(err,data){
@@ -306,7 +306,7 @@ dal.deleteContractorAttachment=function(param,cb){
 var getContractorAttachmentFilePath=function(param,cb){
     
     var sql = "select link";
-    sql +=" from KodeCom.Documents ";
+    sql +=" from Documents ";
      sql += util.format(" where id = %s;",param.id);
     
     console.log("db script: %s",sql);
@@ -325,7 +325,7 @@ dal.deleteContractor=function(param,cb){
     {
        
    
-        sql = "update KodeCom.Contractor set ";
+        sql = "update Contractor set ";
         sql += util.format("deleted='%s',",1);
         sql += "deleted_datetime=now()";
         
