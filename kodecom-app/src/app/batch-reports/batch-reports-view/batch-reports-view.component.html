@@ -1,18 +1,22 @@
 <div class="panel-group restricted-height">
     <div class="panel panel-default">
-      <div class="panel-heading">Batch Entry</div>
+      <div class="panel-heading">Batch Reports</div>
       <div class="panel-body">
         <div class="table-responsive">
   <table class="table table-striped table-hover table-bordered">
           <thead>
             <tr>
+              <td>Date</td>
               <td>Batch</td>
               <td>Status</td>
               <td>User</td>
               <td></td>
               <tr>
                 </thead>
-              <tr *ngFor="let batch of batches" [class.success]="batch.status == 'Complete'" [class.danger]="batch.status != 'Complete'">
+              <tr *ngFor="let batch of batches" [class.success]="batch.status == 'Complete'" [class.danger]="batch.status == 'Failed'" [class.info]="batch.status == 'In Progress'">
+                <td>
+                  {{batch.dated}}
+                  </td>
                 <td>
                   {{batch.fileName}}
                   </td>
@@ -23,7 +27,7 @@
                     {{batch.userName}}
                     </td>
                 <td><button class="btn btn-primary btn-sm" [disabled]="batch.status != 'Complete'" type="button" (click)="getBatch(batch.id)">Download</button>
-                <button class="btn btn-danger btn-sm" [disabled]="batch.status != 'Complete'" type="button" (click)="deleteBatch(batch.id)">Delete</button></td>
+                <button class="btn btn-danger btn-sm" [disabled]="batch.status == 'In Progress'" type="button" (click)="deleteBatch(batch.id)">Delete</button></td>
               </tr>
   </table>
   </div>

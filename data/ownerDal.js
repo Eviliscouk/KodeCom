@@ -19,7 +19,7 @@ dal.getOwner=function(param,cb){
     var sql = "select * from Owner limit 1;";
 
     console.log(sql);
-    db.run({sql:sql},function(err,result){
+    db.run({sql:sql,username:param.username},function(err,result){
     if(err) return cb(err);
     cb(null,result[0]);})
     
@@ -47,7 +47,7 @@ dal.saveOwner=function(param,cb){
     
     
     sql += util.format("'%s','%s','%s','%s','%s','%s','%s','%s','%s','%s');"
-    ,param.owner_name, param.address,	param.town,	param.county, param.postcode,	param.country,
+    ,param.owner_name.replace(/'/g, "''"), param.address.replace(/'/g, "''"),	param.town.replace(/'/g, "''"),	param.county.replace(/'/g, "''"), param.postcode,	param.country,
     param.telUK,param.faxUK,	param.telOverseas,	param.faxOverseas);
     
     }
@@ -55,10 +55,10 @@ dal.saveOwner=function(param,cb){
     else
     {
         sql = "update Owner set ";
-        sql += util.format("owner_name='%s',",param.owner_name);
-        sql += util.format("address='%s',",param.address);
-        sql += util.format("town='%s',",param.town);
-        sql += util.format("county='%s',",param.county);
+        sql += util.format("owner_name='%s',",param.owner_name.replace(/'/g, "''"));
+        sql += util.format("address='%s',",param.address.replace(/'/g, "''"));
+        sql += util.format("town='%s',",param.town.replace(/'/g, "''"));
+        sql += util.format("county='%s',",param.county.replace(/'/g, "''"));
         sql += util.format("postcode='%s',",param.postcode);
         sql += util.format("country='%s',",param.country);
         sql += util.format("telUK='%s',",param.telUK);
@@ -70,7 +70,7 @@ dal.saveOwner=function(param,cb){
     }
     console.log("db script: %s",sql);
     
-    db.run({sql:sql},function(err,result){
+    db.run({sql:sql,username:param.username},function(err,result){
     if(err) return cb(err);
    cb(null,"ok");
 });

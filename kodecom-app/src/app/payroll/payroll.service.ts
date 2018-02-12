@@ -48,6 +48,14 @@ export class PayrollService {
       return response.text();
   }
 
+  async saveBatchPayroll(values: string): Promise<string>{ 
+
+    const response = await this.http.post(this.root+'/api/payroll/saveBatch/', values, {
+        headers: this.headers
+      }).toPromise();
+      return response.text();
+  }
+
   async deletePayroll(id: number) : Promise<string>{
     var obj = {id:id,deleted:1};
     const response = await this.http.post(this.root+'/api/payroll/delete/', obj, {

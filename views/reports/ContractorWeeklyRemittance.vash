@@ -4,7 +4,7 @@
 
 <div id="page">
 <div class="report-url" data-url="@model.url" data-name="@model.title"/>
-  <div id="logo"> <img src="@model.logoUrl" alt="Kodecom"></div><!--end logo-->
+  <div id="logo"> <img src="@model.logoUrl" alt="@model.DbName"></div><!--end logo-->
   
   <div id="address">
     <p><strong>Contractor Weekly Remittance</strong><br />
@@ -27,32 +27,73 @@
       	<th><strong>TLC Ins</strong></th>
       	<th><strong>Gross</strong></th>
       	<th><strong>Materials</strong></th>
-      	<th><strong>Deductions</strong></th>
       	<th><strong>Taxable</strong></th>
       	<th><strong>Tax</strong></th>
-      	<th><strong>VAT</strong></th>
       	<th><strong>Net</strong></th>
+      	<th><strong>VAT</strong></th>
+      	<th><strong>Subtotal</strong></th>
+      	<th><strong>Deductions</strong></th>
       	<th><strong>Fee</strong></th>
       	<th><strong>Payable</strong></th>
       </tr>
 	  
-	 @{	var isOdd = true; }
+	 @{	
+			var isOdd = true;
+			var tlcSum = 0;
+			var grossSum = 0;
+			var materialsSum = 0;
+			var taxableSum = 0;
+			var taxSum = 0;
+			var vatSum = 0;
+			var subSum = 0;
+			var netSum = 0;
+			var deductionsSum = 0;
+			var feeSum = 0;
+			var payableSum = 0;
+			
+			var tax = 0;
+      var net = 0;
+      var vat = 0;
+      var subTotal = 0;
+      var payable = 0;
+		}
 	 @model.items.forEach(function(item){ 
+	 
+		@{
+			tax = item.taxable * (item.deduction_rate / 100);
+      net = item.gross - tax;
+      vat = item.gross * (item.vat_rate / 100);
+      subTotal = net + vat;
+      payable = subTotal - item.deductionTotal - item.fee;
+      
+      tlcSum += model.con_tlcIns;
+      grossSum += item.gross;
+      materialsSum += item.materials;
+      taxableSum += item.taxable;
+      taxSum += tax;
+      vatSum += vat;
+      netSum += net;
+      deductionsSum += item.deductionTotal;
+      feeSum += item.fee;
+      payableSum += payable;
+      subSum += subTotal;
+		}
 	 
 	 	<tr class="@(isOdd ? 'odd' : '')">
 		  <td> @item.sub_displayName </td>  
       <td> @item.sub_verificationNo </td>  
-		  <td> @item.deduction_rate </td>
-		  <td> @model.con_tlcIns </td> 
-		  <td> @item.gross </td> 
-		  <td> @item.materials </td>
-		  <td> @item.deductionTotal </td>
-		  <td> @item.taxable </td>
-		  <td> @item.tax </td> 
-		  <td> @item.vat </td> 
-		  <td> @item.net </td>
-		  <td> @item.fee </td> 
-		  <td> @item.payable </td>
+		  <td align="right"> @item.deduction_rate </td>
+		  <td align="right"> @model.con_tlcIns </td> 
+		  <td align="right"> @item.gross </td> 
+		  <td align="right"> @item.materials </td>
+		  <td align="right"> @item.taxable </td>
+		  <td align="right"> @tax.toFixed(2) </td> 
+		  <td align="right"> @net.toFixed(2) </td>
+		  <td align="right"> @vat.toFixed(2) </td> 
+		  <td align="right"> @subTotal.toFixed(2) </td> 
+		  <td align="right"> @item.deductionTotal </td>
+		  <td align="right"> @item.fee </td> 
+		  <td align="right"> @payable.toFixed(2) </td>
 		</tr>
 		
 		@{isOdd = !isOdd};
@@ -62,36 +103,36 @@
 		<td></td>
 		<td></td>
 		<td></td>
-		<td><strong> @model.tlcSum </strong></td>
-		<td><strong> @model.grossSum </strong></td>
-		<td><strong> @model.materialsSum </strong></td>
-		<td><strong> @model.deductionsSum </strong></td>
-		<td><strong> @model.taxableSum </strong></td>
-		<td><strong> @model.taxSum </strong></td>
-		<td><strong> @model.vatSum </strong></td>
-		<td><strong> @model.netSum </strong></td>
-		<td><strong> @model.feeSum </strong></td>
-		<td><strong> @model.payableSum </strong></td>
+		<td align="right"><strong> @tlcSum.toFixed(2) </strong></td>
+		<td align="right"><strong> @grossSum.toFixed(2) </strong></td>
+		<td align="right"><strong> @materialsSum.toFixed(2) </strong></td>
+		<td align="right"><strong> @taxableSum.toFixed(2) </strong></td>
+		<td align="right"><strong> @taxSum.toFixed(2) </strong></td>
+		<td align="right"><strong> @netSum.toFixed(2) </strong></td>
+		<td align="right"><strong> @vatSum.toFixed(2) </strong></td>
+		<td align="right"><strong> @subSum.toFixed(2) </strong></td>
+		<td align="right"><strong> @deductionsSum.toFixed(2) </strong></td>
+		<td align="right"><strong> @feeSum.toFixed(2) </strong></td>
+		<td align="right"><strong> @payableSum.toFixed(2) </strong></td>
 		</tr>
     </table>
 	<br />
     <hr>
     <p >
 		<dl>
-		  <dt><strong>Net Payment Cost        : </strong></dt><dd> @model.netSum </dd><br />
-		  <dt><strong>VAT                     : </strong></dt><dd> @model.vatSum </dd><br />
-		  <dt><strong>Tax Held on your behalf : </strong></dt><dd> @model.taxHeldSum </dd><br />
-		  <dt><strong>TLC Insurance           : </strong></dt><dd> @model.tlcSum </dd><br />
-		  <dt><strong>Payment Due             : </strong></dt><dd> @model.totalPayable </dd><br />
+		 <dt><strong>Net Payment Cost         : </strong></dt><dd> @netSum.toFixed(2) </dd><br />
+		  <dt><strong>Tax Held on your behalf : </strong></dt><dd> @taxSum.toFixed(2) </dd><br />
+		  <dt><strong>TLC Insurance           : </strong></dt><dd> @tlcSum.toFixed(2) </dd><br />
+		  <dt><strong>Deductions              : </strong></dt><dd> -@deductionsSum.toFixed(2) </dd><br />
+		  @{ var totalPayable = (netSum + taxSum + tlcSum) - deductionsSum; }
+		  <dt><strong>Subtotal                : </strong></dt><dd> @totalPayable.toFixed(2) </dd><br />
 </dl>
     </p>
-	<br />
     <hr>
     <p>
       <center><small>This communication is for the exclusive use of the addressee and may contain proprietary, confidential or privileged information. If you are not the intended recipient any use, copying, disclosure, dissemination or distribution is strictly prohibited.
-      <br /><br />
-	  <strong>KODECOM is the trading name of Kode Compliance Ltd</strong>
-      &copy; KODECOM All Rights Reserved
+      <br />
+	  <strong>@model.DbName is the trading name of @model.DbName</strong>&copy; @model.DbName All Rights Reserved
       </small></center>
     </p>
   </div><!--end content-->

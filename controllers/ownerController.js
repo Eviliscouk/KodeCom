@@ -15,7 +15,7 @@ var setupRoutes=function(app){
         
         app.get("/api/getOwner/",passport.authenticationMiddleware(),function(req,res){
            
-           db.getOwner({},function(err,data){
+           db.getOwner({username:req.user.username},function(err,data){
                
                if(err)
                res.send(err)
@@ -29,7 +29,9 @@ var setupRoutes=function(app){
         
        app.post("/api/owner/save/",passport.authenticationMiddleware(),function(req,res){
            console.log('saving..');
-            db.saveOwner(req.body,function(err,data){
+             var params=req.body;
+            params.username = req.user.username;
+            db.saveOwner(params,function(err,data){
                
                if(err)
                res.send(err)

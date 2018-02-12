@@ -55,6 +55,22 @@ export class SubcontractorDetailComponent implements OnInit, OnDestroy {
     this.router.navigate(['../../../contractors/', this.subcontractor.c_ID], {relativeTo: this.route});
   }
 
+  async onDelete()
+  {
+    if (confirm("Are you sure to delete "+ this.subcontractor.displayName + ", This will remove all data including Payroll!"))
+    {
+      var result = await this.subcontractorsService.delete(this.id);
+      if (result == 'ok')
+      {
+        this.router.navigate(['../../../contractors/', this.subcontractor.c_ID], {relativeTo: this.route});
+      }
+      else
+        {
+          alert('failed to Delete SubContractor!');
+        }
+    }
+  }
+
   async onAddNote()
   {
     var note = new Note(0, 0, this.id, new Date(), this.newNote);

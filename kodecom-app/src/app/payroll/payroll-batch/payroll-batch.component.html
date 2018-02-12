@@ -9,7 +9,7 @@
         
           <form class="form-inline">
             <strong><label for="paymentDate">Payment Date:</label> </strong>
-            <input type="date" id="paymentDate" class="form-control" name="paymentDate" [ngModel] ="paymentDate | date:'yyyy-MM-dd'" (ngModelChange)="paymentDates($event)">
+            <input type="date" id="paymentDate" class="form-control" name="paymentDate" [ngModel] ="paymentDate | date:'yyyy-MM-dd'" (blur)="paymentDates($event.target.value)">
           </form>
         
          <!--<p><strong>Payment Date: </strong> {{paymentDate | date:'dd-MM-yyyy'}} </p>-->
@@ -17,15 +17,18 @@
 
          <form class="form-inline">
             <strong><label for="weekEnding">Week Ending Date: </label> </strong>
-            <input type="date" id="weekEnding" class="form-control" name="weekEnding" [ngModel] ="weekEnding | date:'yyyy-MM-dd'" (ngModelChange)="weekEndingOveride($event)">
+            <input type="date" id="weekEnding" class="form-control" name="weekEnding" [ngModel] ="weekEnding | date:'yyyy-MM-dd'" (blur)="weekEndingOveride($event.target.value)">
           </form>
          <p><strong strong>Month Ending Date: </strong> {{monthEndingDate | date:'dd-MM-yyyy'}} </p>
+  
+        <input type="text" id="inputDisplayName" placeholder="Job Filter" class="form-control" [(ngModel)]="jobNameFilter"/>
         <form (ngSubmit)="onSubmit(f)" #f="ngForm">
           <div class="table-responsive">
         <table class="table table-striped table-hover table-bordered">
           <thead>
             <tr>
               <th>Name</th>
+              <th>Job Ref</th>
               <th>Deduction Rate</th>
               <th>VAT Rate</th>
               <th>Gross</th>
@@ -33,15 +36,18 @@
               <th>Fee</th>
               <th>Tax</th>
               <th>Vat</th>
-              <th>Nett</th>
+              <th>Net</th>
               <th>Deductions</th>
               <th></th>
             </tr>
           </thead>
           <tbody>
-              <tr *ngFor="let item of payrollItems;let i = index;" [class.success]="item.saveSuccess" [class.danger]="item.recordError">
+              <tr *ngFor="let item of payrollItems | filterJobNamePipe: jobNameFilter" [class.success]="item.saveSuccess" [class.danger]="item.recordError">
                 <td>
-                  {{GetSubcontractorName(item.s_ID)}}
+                  {{item.subName}}<!-- {{GetSubcontractorName(item.s_ID)}} -->
+                </td>
+                <td>
+                  {{item.jobName}}
                 </td>
                 <td>
                   <input type="text" ngModel="{{item.deductionRate}}" [attr.id]="'deductionRate_' + item.s_ID" [attr.disabled]="item.saveSuccess?'':null" class="form-control input-sm" name="deductionRate_{{item.s_ID}}" ngModel required pattern="^\d{0,3}(?:\.\d{1,2})?$">
@@ -92,7 +98,21 @@
                   {{ item.nett | currency:'GBP':true}}
                 </td>
                 <td>
-                  {{ item.totalDeductions | currency:'GBP':true}}
+                  <div>{{ item.totalDeductions | currency:'GBP':true}}</div>
+                  <div *ngIf="!item.saveSuccess">
+                      <button class="btn btn-success btn-sm" type="button" [attr.data-target]="'#addDeduction' + item.s_ID" data-toggle="collapse">+</button>
+                      <br>
+                      <div [attr.id]="'addDeduction' + item.s_ID" class="collapse" >
+                        <input [attr.id]="'dAmount_' + item.s_ID" name="dAmount_{{item.s_ID}}" class="form-control" [(ngModel)]="newDeduction.amount">
+                        <textarea [attr.id]="'dDescription_' + item.s_ID" name="dDescription_{{item.s_ID}}"  class="form-control" rows="5" [(ngModel)]="newDeduction.description"></textarea>
+                        <button *ngIf="newDeduction && newDeduction.description.length > 0 && newDeduction.amount > 0" type="button" (click)="onAddDeduction(item)" class="btn btn-success btn-sm" data-toggle="collapse" [attr.data-target]="'#addDeduction' + item.s_ID">Add</button>
+                        <button class="btn btn-warning btn-sm" type="button" data-toggle="collapse" [attr.data-target]="'#addDeduction' + item.s_ID">Cancel</button>
+                        <br>
+                      </div>
+                  </div>
+                  <div class="small-restricted-height" *ngIf="!item.saveSuccess">
+                      <app-payroll-batch-deduction-item *ngFor="let deduction of item.deductions" [payrollDeduction]="deduction" (deleteDeduction)="onDeleteDeduction($event, item)"></app-payroll-batch-deduction-item>
+                  </div>
                 </td>
                 <td>
                   <button class="btn btn-danger btn-sm" type="button" (click)="removeItem(item)" *ngIf="!item.saveSuccess">Delete</button>
@@ -106,6 +126,7 @@
               </tr>
               <tr>
                 <td>Totals:</td>
+                <td></td>
                 <td></td>
                 <td></td>
                 <td><strong>{{ totalGross | currency:'GBP':true}}</strong></td>

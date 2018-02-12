@@ -7,6 +7,7 @@
     var util = require('util');
     const passport = require('passport');
     const pdf = require("../helper/pdf.js");
+    const url = require("url");
     
     contractorsController.init= function(app){
          setupRoutes(app);    
@@ -25,7 +26,8 @@ var setupRoutes=function(app){
         
         app.get("/api/getContractorNames/",passport.authenticationMiddleware(), function(req,res){
         console.log('getting Names');
-        db.getContractorList({},function(err,data){
+        console.log(req.user.username);
+        db.getContractorList({username:req.user.username},function(err,data){
            
            if(err)
            res.send(err);
@@ -42,7 +44,21 @@ var setupRoutes=function(app){
         console.log("getting contractor");
             var params={};
             params.id = req.params.id;
+            params.username = req.user.username;
            db.getContractor(params, function(err,data){
+           
+           if(err)
+           res.send(err);
+           else
+            res.send(data);
+        
+        });
+        });
+        
+        app.get("/api/contractorNote/get/:id",passport.authenticationMiddleware(), function(req,res){
+        var params=req.params;
+        params.username = req.user.username;
+        db.getContractorNotes(params,function(err,data){
            
            if(err)
            res.send(err);
@@ -51,11 +67,29 @@ var setupRoutes=function(app){
             res.send(data);
         
         });
+        
         });
         
-        app.get("/api/contractorNote/get/:id",passport.authenticationMiddleware(), function(req,res){
+        app.get("/api/contractorJob/get/:id",passport.authenticationMiddleware(), function(req,res){
+        var params=req.params;
+        params.username = req.user.username;
+        db.getContractorJobs(params,function(err,data){
+           
+           if(err)
+           res.send(err);
+           else
         
-        db.getContractorNotes(req.params,function(err,data){
+            res.send(data);
+        
+        });
+        
+        });
+        
+        app.get("/api/contractorJob/getOpen/:id",passport.authenticationMiddleware(), function(req,res){
+        
+        var params=req.params;
+        params.username = req.user.username;
+        db.getOpenContractorJobs(params,function(err,data){
            
            if(err)
            res.send(err);
@@ -70,10 +104,10 @@ var setupRoutes=function(app){
         
         app.post("/api/contractor/save/",passport.authenticationMiddleware(), function(req,res){
             console.log('saving..');
-            console.log(JSON.stringify());
-            var body='';
-            
-            db.saveContractor(req.body,function(err,data){
+            console.log('user' - req.user);
+            var params=req.body;
+            params.username = req.user.username;
+            db.saveContractor(params,function(err,data){
                
             if(err)
                 res.send(err);
@@ -84,8 +118,25 @@ var setupRoutes=function(app){
         
         
         app.post("/api/contractorNote/save/", function(req,res){
+          var params=req.body;
+            params.username = req.user.username;
+        db.saveContractorNote(params,function(err,data){
+           
+           if(err)
+           res.send(err);
+           else
         
-        db.saveContractorNote(req.body,function(err,data){
+            res.send(data);
+        
+        });
+        //res.send("ok");
+        
+        });
+        
+        app.post("/api/contractorJob/save/", function(req,res){
+          var params=req.body;
+            params.username = req.user.username;
+        db.saveContractorJob(params,function(err,data){
            
            if(err)
            res.send(err);
@@ -99,8 +150,9 @@ var setupRoutes=function(app){
         });
         
         app.post("/api/contractor/lockPayroll/", function(req,res){
-        
-        db.lockPayroll(req.body,function(err,data){
+          var params=req.body;
+            params.username = req.user.username;
+        db.lockPayroll(params,function(err,data){
            
            if(err)
            res.send(err);
@@ -142,11 +194,11 @@ var setupRoutes=function(app){
            next();
         });
         
-        
         app.post("/api/contractor/delete/",passport.authenticationMiddleware(), function(req,res){
         console.log('deleting..');
-        
-        db.deleteContractor(req.body,function(err,data){
+          var params=req.body;
+            params.username = req.user.username;
+        db.deleteContractor(params,function(err,data){
            
            if(err)
            res.send(err);
@@ -161,8 +213,9 @@ var setupRoutes=function(app){
         });
         
         app.get("/api/contractorAttachments/get/:id", passport.authenticationMiddleware(),function(req,res){
-        
-        db.getContractorAttachments(req.params,function(err,data){
+          var params=req.params;
+            params.username = req.user.username;
+        db.getContractorAttachments(params,function(err,data){
            
            if(err)
            res.send(err);
@@ -174,8 +227,9 @@ var setupRoutes=function(app){
         
         app.get("/api/contractorAttachment/get/:id",passport.authenticationMiddleware(), function(req,res){
         console.log('contractorAttachment');
-        
-        db.getContractorAttachment(req.params,function(err,data){
+          var params=req.params;
+            params.username = req.user.username;
+        db.getContractorAttachment(params,function(err,data){
            
            if(err)
            res.send(err)
@@ -202,8 +256,9 @@ var setupRoutes=function(app){
         console.log('deleting..');
         
         console.log(req.body);
-        
-        db.deleteContractorAttachment(req.body,function(err,data){
+          var params=req.body;
+            params.username = req.user.username;
+        db.deleteContractorAttachment(params,function(err,data){
            
            if(err)
            res.send(err);
@@ -219,8 +274,6 @@ var setupRoutes=function(app){
     
         app.get("/report", function(req,res,next){
                 
-                
-                
             //var html =util.format('<!DOCTYPE html><html lang="en"><body><h1>%s</h1><i>this is report...</i></body></html>',req.params.name);
             var reportUrl = util.format('%s%s',process.params.baseUrl,req.query.report);
             var name = req.query.name;
@@ -228,7 +281,12 @@ var setupRoutes=function(app){
             console.log(reportUrl);
             console.log(name);
             
-            http.get(reportUrl,function(response){
+            var urlObj = url.parse(reportUrl);
+            var queryStr = urlObj.query;
+            var newUrl = urlObj.href + '?' + queryStr + '&user=' + req.user.username;
+            console.log(newUrl);
+            
+            http.get(newUrl,function(response){
                 var str = "";
                 
                 response.on('data', function (chunk) {
@@ -241,6 +299,9 @@ var setupRoutes=function(app){
                     //console.log('html from get = ' + str);
                     // your code here if you want to use the results !
                     
+                    
+                    var substring = '>Download<';
+                    str = str.replace(substring, "><");
                     pdf.render({html:str},function(err,output){
                     //pdf.testPdf({html:str},function(err,output){
                  output.toBuffer(function(returnedBuffer) {
@@ -325,7 +386,7 @@ function saveFile(req,res,next){
         
         req.on('end', function () {
             // db save
-            var promise = db.saveContractorAttachmentLocation({id: id, filepath: docPath, name: filename, type: contentType});
+            var promise = db.saveContractorAttachmentLocation({id: id, filepath: docPath, name: filename, type: contentType, username: req.user.username});
             promise.then(res.end('ok'),res.end('fail'));
             
             });

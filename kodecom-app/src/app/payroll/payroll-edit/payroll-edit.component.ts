@@ -7,6 +7,7 @@ import { Subscription } from 'rxjs/Subscription';
 import { Payroll } from '../payroll.model';
 import { PayrollService } from '../payroll.service';
 import { SubContractorService } from '../../subcontractor/subcontractor.service';
+import { Job } from '../../shared/job.model';
 
 @Component({
   selector: 'app-payroll-edit',
@@ -35,6 +36,8 @@ export class PayrollEditComponent implements OnInit,AfterViewInit, OnDestroy {
   public vat: number = 0;
   public nett: number = 0;
 
+  public jobs : Job[];
+
   constructor(private route: ActivatedRoute, private router: Router, private location: Location, private payrollService: PayrollService, private subContractorService: SubContractorService) { }
 
   ngOnInit() {
@@ -60,6 +63,10 @@ export class PayrollEditComponent implements OnInit,AfterViewInit, OnDestroy {
           this.defaultVatRate = +n["vatRate"];
           this.defaultFee = +n["fee"];
 
+          this.subContractorService.getOpenContractorJobs(this.contractorId).subscribe(j => {
+            this.jobs = j;
+          });
+
           
             this.editForm.form.patchValue({
             deductionRate: this.defaultDeductionRate,
@@ -77,16 +84,20 @@ export class PayrollEditComponent implements OnInit,AfterViewInit, OnDestroy {
           {
             this.editMode = true;
             this.payrollService.getPayroll(this.editedItemId).subscribe(p => {
-
+             
+              var weekEndingVal = new Date(p.weekEnding).toISOString().substring(0,10);
+              var paymentDateVal = new Date(p.paymentDate).toISOString().substring(0,10);
+              var monthEndingDateVal = new Date(p.monthEndingDate).toISOString().substring(0,10);
               this.editForm.setValue({
-            weekEnding: p.weekEnding,
-            paymentDate: p.paymentDate,
-            monthEndingDate: p.monthEndingDate,
+            weekEnding: weekEndingVal,
+            paymentDate: paymentDateVal,
+            monthEndingDate: monthEndingDateVal,
             deductionRate: p.deductionRate,
             vatRate: p.vatRate,
             gross: p.gross,
             fee: p.fee,
             materials: p.materials,
+            jobId: p.jobId,
             //totalDeductions: 0,
             locked: p.locked,
           });});
@@ -109,7 +120,12 @@ export class PayrollEditComponent implements OnInit,AfterViewInit, OnDestroy {
     else if (form.value.locked === false)
       form.value.locked = 0;
 
-    var result = await this.payrollService.updatePayroll(JSON.stringify(form.value));
+    var payrollObj = JSON.parse(JSON.stringify(form.value));
+    payrollObj["monthEndingDate"] = this.monthEndingDate;
+            
+    var newObj = JSON.stringify(payrollObj)
+
+    var result = await this.payrollService.updatePayroll(newObj);
     if (result == 'ok')
     {
       this.saveSuccess= true;
@@ -133,6 +149,16 @@ export class PayrollEditComponent implements OnInit,AfterViewInit, OnDestroy {
   {
     this.paymentDate = new Date(value);
     this.calcDates();
+  }
+
+  public setPaymentDate(value: Date)
+  {
+    this.paymentDate = new Date(value);
+  }
+
+  public setWeekEndingDate(value: Date)
+  {
+    this.weekEnding = new Date(value);
   }
 
   calcDates()

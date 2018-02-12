@@ -6,6 +6,29 @@
         <table>
           <tbody>
             <tr>
+              <td>
+                <strong>
+                  Job Filter:
+                  </strong>
+                </td>
+                <td>
+                  &nbsp;
+                  </td>
+                <td>
+                  <select multiple id="currentJob" class="form-control" placeholder="Job Filter" name="currentJob" [(ngModel)]="jobIds" >
+                   <option *ngFor="let job of jobs" [value]="job.id">  
+                      {{job.jobRef}} - {{job.description}}
+                  </option>
+                  </select>
+                </td>
+                <td>
+                  &nbsp;
+                  </td>
+                <td>
+                  &nbsp;
+                  </td>
+              </tr>
+            <tr>
                 <td>
                   <strong>
                     Monthly Return
@@ -18,7 +41,7 @@
                 </td>
                 <td>&nbsp;</td>
                 <td>
-                  <input type="date" id="monthEnd" class="form-control" name="monthEnd" [ngModel] ="monthEnd | date:'yyyy-MM-dd'" (ngModelChange)="monthEnd = $event"  required>
+                  <input type="date" id="monthEnd" class="form-control" name="monthEnd" [ngModel] ="monthEnd | date:'yyyy-MM-dd'" (blur)="monthEnd = $event.target.value"  required>
                 </td>
                 <td rowspan="2">&nbsp;</td>
                 <td>
@@ -41,7 +64,7 @@
                 </td>
                 <td>&nbsp;</td>
                 <td>
-                  <input type="date" id="paymentDate" class="form-control" name="paymentDate" [ngModel] ="paymentDate | date:'yyyy-MM-dd'" (ngModelChange)="paymentDate = $event"  required>
+                  <input type="date" id="paymentDate" class="form-control" name="paymentDate" [ngModel] ="paymentDate | date:'yyyy-MM-dd'" (blur)="paymentDate = $event.target.value"  required>
                 </td>
                 <td rowspan="2">&nbsp;</td>
                 <td>

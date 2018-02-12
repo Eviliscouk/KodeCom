@@ -16,17 +16,30 @@
               <div class="panel-body">
                 <div *ngIf="editMode">
                   <label for="paymentDate">Payment Date</label>
-                  <input type="date" id="paymentDate" class="form-control" name="paymentDate" [ngModel] ="paymentDate | date:'yyyy-MM-dd'" (ngModelChange)="paymentDate = $event"  required>
+                  <input type="date" id="paymentDate" class="form-control" name="paymentDate" [ngModel] ="paymentDate | date:'yyyy-MM-dd'" (blur)="paymentDate = $event.target.value"  required>
                   <label for="weekEnding">Week Ending</label>
-                  <input type="date" id="weekEnding" class="form-control" name="weekEnding" [ngModel] ="weekEnding | date:'yyyy-MM-dd'" (ngModelChange)="weekEnding = $event" required>
+                  <input type="date" id="weekEnding" class="form-control" name="weekEnding" [ngModel] ="weekEnding | date:'yyyy-MM-dd'" (blur)="weekEnding = $event.target.value" required>
                   <label for="monthEndingDate">Month Ending</label>
-                  <input type="date" id="monthEndingDate" class="form-control" name="monthEndingDate" [ngModel] ="monthEndingDate | date:'yyyy-MM-dd'" (ngModelChange)="monthEndingDate = $event"  required>
+                  <input type="date" id="monthEndingDate" class="form-control" name="monthEndingDate" [ngModel] ="monthEndingDate | date:'yyyy-MM-dd'" (blur)="monthEndingDate = $event.target.value"  required>
                 </div>
                 <div *ngIf="!editMode">
                   <label for="paymentDate">Payment Date</label>
-                  <input type="date" id="paymentDate" class="form-control" name="paymentDate" [ngModel] ="paymentDate | date:'yyyy-MM-dd'" (ngModelChange)="paymentDates($event)"  required>
-                  <p><strong strong>Week Ending Date: </strong> {{weekEnding | date:'dd-MM-yyyy'}} </p>
+                  <input type="date" id="paymentDate" class="form-control" name="paymentDate" [ngModel] ="paymentDate | date:'yyyy-MM-dd'" (blur)="paymentDates($event.target.value)"  required>
+                  <!-- <p><strong strong>Week Ending Date: </strong> {{weekEnding | date:'dd-MM-yyyy'}} </p> -->
+                  <label for="paymentDate">Week Ending Date</label>
+                  <input type="date" id="weekEnding" class="form-control" name="weekEnding" [ngModel] ="weekEnding | date:'yyyy-MM-dd'" (blur)="setWeekEndingDate($event.target.value)"  required>
                   <p><strong strong>Month Ending Date: </strong> {{monthEndingDate | date:'dd-MM-yyyy'}} </p>
+                </div>
+                <label for="currentJob">Assigned Job</label>
+                <select id="currentJob" class="form-control" name="jobId" ngModel required>
+                  <option *ngFor="let job of jobs" [value]="job.id">  
+                  {{job.jobRef}} - {{job.description}}
+                  </option>
+                </select>
+                <div *ngIf="!f.controls.currentJob?.valid && (f.controls.currentJob?.dirty || f.controls.currentJob?.touched)" class="alert alert-danger">
+                  <div [hidden]="!f.controls.currentJob.errors.required">
+                    Job is required!
+                  </div>
                 </div>
               </div>
         </div>
@@ -91,7 +104,7 @@
                       <strong>VAT:</strong> {{ vat | currency:'GBP':true}}
                     </div>
                     <div>
-                      <strong>Nett:</strong> {{ nett | currency:'GBP':true}}
+                      <strong>Net:</strong> {{ nett | currency:'GBP':true}}
                     </div>
                 </div>
             </div>

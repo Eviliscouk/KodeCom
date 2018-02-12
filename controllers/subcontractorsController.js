@@ -25,12 +25,13 @@ var setupRoutes=function(app){
         
         app.get("/api/subcontractors/getContractorId/:id",passport.authenticationMiddleware(),function(req,res){
            
+            var params=req.params;
+            params.username = req.user.username;
            
-           
-           db.getSubContractorContractorId(req.params,function(err,data){
+           db.getSubContractorContractorId(params,function(err,data){
                
                if(err)
-               res.send(err)
+               res.send(err);
                else
 
                 res.send(data);
@@ -40,8 +41,14 @@ var setupRoutes=function(app){
         });
         
         app.get("/api/subContractorNameById/get/:id/:active?",function(req,res){
-           
-           db.getSubContractorList(req.params,function(err,data){
+             var params=req.params;
+             if (req.user)
+                params.username = req.user.username;
+            else 
+                console.log('no user on request')
+            
+            console.log('getting sub contractors - requested by ' + params.username)
+           db.getSubContractorList(params,function(err,data){
                
                if(err)
                res.send(err)
@@ -55,7 +62,9 @@ var setupRoutes=function(app){
         
         app.get("/api/subcontractor/get/:id",passport.authenticationMiddleware(),function(req,res){
         
-           db.getSubContractor(req.params.id, function(err,data){
+           var params=req.params;
+            params.username = req.user.username;
+           db.getSubContractor(params, function(err,data){
            
            if(err)
            res.send(err)
@@ -67,8 +76,9 @@ var setupRoutes=function(app){
         });
         
         app.get("/api/SubContractorNote/get/:id",passport.authenticationMiddleware(),function(req,res){
-        
-        db.getSubContractorNotes(req.params,function(err,data){
+        var params=req.params;
+            params.username = req.user.username;
+        db.getSubContractorNotes(params,function(err,data){
            
            if(err)
            res.send(err)
@@ -82,7 +92,9 @@ var setupRoutes=function(app){
         
         app.post("/api/SubContractor/save/",passport.authenticationMiddleware(),function(req,res){
         console.log('saving..');
-        db.saveSubContractor(req.body,function(err,data){
+        var params=req.body;
+            params.username = req.user.username;
+        db.saveSubContractor(params,function(err,data){
            
            if(err)
            res.send(err)
@@ -94,7 +106,9 @@ var setupRoutes=function(app){
         });
         
         app.post("/api/SubContractorNote/save/",passport.authenticationMiddleware(),function(req,res){
-        db.saveSubContractorNote(req.body,function(err,data){
+            var params=req.body;
+            params.username = req.user.username;
+        db.saveSubContractorNote(params,function(err,data){
            
            if(err)
            res.send(err)
@@ -109,7 +123,9 @@ var setupRoutes=function(app){
         
         app.post("/api/SubContractor/delete/",passport.authenticationMiddleware(),function(req,res){
         console.log('deleting..');
-        db.deleteSubContractor(req.body,function(err,data){
+        var params=req.body;
+            params.username = req.user.username;
+        db.deleteSubContractor(params,function(err,data){
            
            if(err)
            res.send(err)
@@ -124,8 +140,9 @@ var setupRoutes=function(app){
         });
         
         app.get("/api/subcontractorAttachments/get/:id",passport.authenticationMiddleware(),function(req,res){
-        
-        db.getSubContractorAttachments(req.params,function(err,data){
+        var params=req.params;
+            params.username = req.user.username;
+        db.getSubContractorAttachments(params,function(err,data){
            
            if(err)
            res.send(err)
@@ -141,8 +158,9 @@ var setupRoutes=function(app){
         
         app.post("/api/subcontractorAttachment/delete/",passport.authenticationMiddleware(),function(req,res){
         console.log('deleting..');
-        
-        db.deleteSubContractorAttachment(req.body,function(err,data){
+        var params=req.body;
+            params.username = req.user.username;
+        db.deleteSubContractorAttachment(params,function(err,data){
            
            if(err)
            res.send(err)
@@ -172,7 +190,7 @@ function saveFile(req,res,next){
         
         req.on('end', function () {
             // db save
-            var promise = db.saveSubContractorAttachmentLocation({id: id, filepath: docPath, name: filename, type: contentType});
+            var promise = db.saveSubContractorAttachmentLocation({id: id, filepath: docPath, name: filename, type: contentType, username: req.user.username});
             promise.then(res.end('ok'),res.end('fail'));
             
             });

@@ -16,6 +16,8 @@ import { ContractorEditComponent } from './contractors/contractor-edit/contracto
 import { DropdownDirective } from './shared/dropdown.directive';
 import { SubcontractorComponent } from './subcontractor/subcontractor.component';
 import { FilterDisplayNamePipe } from './shared/filter-displayName.pipe';
+import { FilterJobNamePipe } from './shared/filter-jobName.pipe';
+import { FilterJobPipe } from './shared/filter-job.pipe';
 import { DataFilterPipe } from './shared/data-filter.pipe';
 import { SubcontractorListComponent } from './subcontractor/subcontractor-list/subcontractor-list.component';
 import { SubcontractorItemComponent } from './subcontractor/subcontractor-list/subcontractor-item/subcontractor-item.component';
@@ -38,6 +40,8 @@ import { BatchReportsContractorComponent } from './batch-reports/batch-reports-c
 import { BatchReportsSubcontractorComponent } from './batch-reports/batch-reports-subcontractor/batch-reports-subcontractor.component';
 import { BatchReportsGeneralComponent } from './batch-reports/batch-reports-general/batch-reports-general.component';
 import { BatchReportsViewComponent } from './batch-reports/batch-reports-view/batch-reports-view.component';
+import { ContractorJobItemComponent } from './contractors/contractor-job-item/contractor-job-item.component';
+import { PayrollBatchDeductionItemComponent } from './payroll/payroll-batch-deduction-item/payroll-batch-deduction-item.component';
 
 @NgModule({
   declarations: [
@@ -52,6 +56,8 @@ import { BatchReportsViewComponent } from './batch-reports/batch-reports-view/ba
     DropdownDirective,
     SubcontractorComponent,
     FilterDisplayNamePipe,
+    FilterJobNamePipe,
+    FilterJobPipe,
     SubcontractorListComponent,
     SubcontractorItemComponent,
     SubcontractorDetailComponent,
@@ -74,6 +80,8 @@ import { BatchReportsViewComponent } from './batch-reports/batch-reports-view/ba
     BatchReportsSubcontractorComponent,
     BatchReportsGeneralComponent,
     BatchReportsViewComponent,
+    ContractorJobItemComponent,
+    PayrollBatchDeductionItemComponent,
   ],
   imports: [
     BrowserModule,

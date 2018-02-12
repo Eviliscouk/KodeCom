@@ -8,6 +8,23 @@
         <table>
           <tbody>
             <tr>
+              <td>
+                <strong>
+              <label for="currentJob">Job Filter: </label>
+              </strong>
+              </td>
+            
+            <td>
+                <select id="currentJob" class="form-control" name="currentJob" [(ngModel)]="jobId" required>
+                  <option *ngFor="let job of jobs" [value]="job.id">  
+                  {{job.jobRef}} - {{job.description}}
+                  </option>
+                </select>
+                </td>
+              <td>&nbsp;</td>
+              <td>&nbsp;</td>
+              </tr>
+            <tr>
                 <td>
                   <strong>
                     Monthly Statement:
@@ -22,7 +39,7 @@
                   Start Date:
                 </td>
                 <td>
-                  <input type="date" id="startDate" class="form-control" name="startDate" [ngModel] ="startDate | date:'yyyy-MM-dd'" (ngModelChange)="startDate = $event"  required>
+                  <input type="date" id="startDate" class="form-control" name="startDate" [ngModel] ="startDate | date:'yyyy-MM-dd'" (blur)="startDate = $event.target.value"  required>
                 </td>
                 <td rowspan="2">&nbsp;</td>
                 <td rowspan="2" style="text-align: center; vertical-align: middle;">
@@ -35,7 +52,7 @@
                   End Date:
                 </td>
                 <td>
-                  <input type="date" id="endDate" class="form-control" name="endDate" [ngModel] ="endDate | date:'yyyy-MM-dd'" (ngModelChange)="endDate = $event"  required>
+                  <input type="date" id="endDate" class="form-control" name="endDate" [ngModel] ="endDate | date:'yyyy-MM-dd'" (blur)="endDate = $event.target.value"  required>
                 </td>
               </tr>
               <tr>
@@ -47,7 +64,7 @@
               <tr>
                     <td>
                   <strong>
-                    Annual Statement
+                    Annual Invoice
                     </strong>
                 </td>
                 <td></td>
@@ -59,7 +76,7 @@
                   Year End:
                 </td>
                 <td>
-                  <input type="date" id="yearEnd" class="form-control" name="yearEnd" [ngModel] ="yearEnd | date:'yyyy-MM-dd'" (ngModelChange)="yearEnd = $event"  required>
+                  <input type="date" id="yearEnd" class="form-control" name="yearEnd" [ngModel] ="yearEnd | date:'yyyy-MM-dd'" (blur)="yearEnd = $event.target.value"  required>
                 </td>
                 <td>
                   &nbsp;

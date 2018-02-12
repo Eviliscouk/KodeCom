@@ -5,6 +5,7 @@ import { Subscription } from 'rxjs/Subscription';
 
 import { Contractor } from '../contractor.model';
 import { Note } from '../../shared/note.model';
+import { Job } from '../../shared/job.model';
 import { ContractorService } from '../contractor.service';
 
 declare var $:any;
@@ -19,6 +20,8 @@ export class ContractorDetailComponent implements OnInit, OnDestroy {
   contractor: Contractor;
   id: number;
   newNote: string;  
+  newJob: string;
+  newJobId: string;
 
   constructor(private contractorsService: ContractorService,
               private route: ActivatedRoute,
@@ -34,6 +37,7 @@ export class ContractorDetailComponent implements OnInit, OnDestroy {
             this.contractor = c;
             this.newNote = "";
             this.contractorsService.getContractorNotes(this.id).subscribe(n => this.contractor.attachedNotes = n);
+            this.contractorsService.getContractorJobs(this.id).subscribe(j => this.contractor.attachedJobs = j);
             this.contractorsService.getContractorAttachments(this.id).subscribe(a => this.contractor.attachedFiles = a);
             this.contractorAttachmentSub = this.contractorsService.contractorAttachmentsChanged.subscribe(c => this.contractorsService.getContractorAttachments(this.id).subscribe(a => this.contractor.attachedFiles = a));
           });
@@ -69,6 +73,19 @@ export class ContractorDetailComponent implements OnInit, OnDestroy {
     }
     this.newNote = '';
     $("#addNote").collapse('hide');
+  }
+
+  async onAddJob()
+  {
+    var job = new Job(0, this.id, this.newJobId, this.newJob);
+    var result = await this.contractorsService.addContractorJob(JSON.stringify(job));
+    if (result == 'ok')
+    {
+      this.contractorsService.getContractorJobs(this.id).subscribe(j => this.contractor.attachedJobs = j);
+    }
+    this.newJobId = '';
+    this.newJob = '';
+    $("#addJob").collapse('hide');
   }
   
   async fileChange(event) {

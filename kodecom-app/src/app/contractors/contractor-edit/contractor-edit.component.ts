@@ -59,7 +59,9 @@ export class ContractorEditComponent implements OnInit, AfterViewInit, OnDestroy
              utr: c.utr,
              fee: c.fee,
              tlcIns: c.tlcIns,
-             payerType: c.payerType,
+             payerType: c.payerType/*,
+             bankAccount: c.bankAccount,
+             bankSortCode: c.bankSortCode*/
            });});
           }
           else

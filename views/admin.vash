@@ -1,0 +1,236 @@
+@html.extend('layout',function(model){
+
+@html.block("css",function(){
+
+})
+@html.block("js",function(){
+
+})
+
+<div class="container">
+
+@html.block("main",function(model){
+
+<h1>Admin</h1>
+<h2>@model.error</h2>
+@if(model.error){
+	<p>@model.error</p>
+} 
+else{
+
+<table class="table table-bordered table-striped table-responsive table-sm" width="100%">
+    <tr>
+        <td><strong>Id</strong></td>
+        <td><strong>Username</strong></td>
+        <td><strong>Is Admin</strong></td>
+        <td><strong>First Name</strong></td>
+        <td><strong>Surname</strong></td>
+        <td></td>
+    </tr>
+    
+    @model.users.forEach(function(e){
+     
+    <tr>
+        <td>@e.id</td>
+        <td>@e.username</td>
+        <td>@e.isAdmin</td>
+        <td>@e.first_name</td>
+        <td>@e.surname</td>
+       <td>
+            <input type="button" class="btn btn-info" value="edit" id="btnEdit" data-toggle="modal" data-target="#userAdmin"
+        data-userid="@e.id"
+        data-username="@e.username"
+        data-first_name="@e.first_name"
+        data-surname="@e.surname"
+        data-dated="@e.dated"
+        data-isadmin="@e.isAdmin"
+        data-last_loggedIn_datetime="@e.last_loggedIn_datetime"
+        />
+        
+        </td>
+    </tr>
+    })
+    
+    
+</table>
+    <input type="button" class="btn btn-info" value="New" id="btnNew" data-toggle="modal" data-target="#userAdmin" />
+
+}
+
+})
+
+</div>
+
+})
+
+<div class="modal fade" id="userAdmin" role="dialog">
+    <div class="modal-dialog">
+    
+      <!-- Modal content-->
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+            <h4 class="modal-title text-success">Admin</h4>
+        </div>
+        <div class="modal-body">
+         
+        </div>
+         <p class="text-success"></p>
+         <p class="text-danger"></p>
+        <div class="modal-footer">
+           <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>&nbsp;
+           <button type="button" class="btn btn-success btn-save" data-dismiss="modal">Save</button>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+<script type="text/javascript">
+ var user;
+$(document).ready(function(){
+$('input#btnEdit').on('click',function(e){
+    
+   user={};
+    user.id=$(this).data('userid');
+    user.username=$(this).data('username');
+    user.firstname=$(this).data('first_name');
+    user.surname=$(this).data('surname');
+    user.admin=$(this).data('isadmin')=='y'?"checked":"";
+    
+    var html ='<table class="table table-bordered negative">'
+    html += '<tr>'
+    html += '<td>id</td>'
+    html += '<td>'+user.id+'</td>'
+    html += '<td>user name</td>'
+    html += '<td>'+user.username+'</td>'
+    html += '</tr>'
+    html += '<tr>'
+    html += '<td>Admin</td>'
+    html += '<td colspan="3">'
+    html += '<input type="checkbox" class="admin" '+ user.admin+'/></td>'
+    html += '</tr>'
+    html += '<tr>'
+    html += '<td>first name</td>'
+    html += '<td><input type="text" class="firstname" value="'+user.firstname+'"/></td>'
+    html += '<td>surname</td>'
+    html += '<td><input type="text" class="surname" value="'+user.surname+'"/></td>'
+    html += '</tr>'
+    
+    html += '<tr>'
+    html += '<td>password</td>'
+    html += '<td><input type="password" class="password" placeholder="enter password"/></td>'
+    html += '<td>confirm password</td>'
+    html += '<td><input type="password" class="confirm-password" placeholder="confirm password"/></td>'
+    html += '</tr>'
+    html += '</table>'
+    
+    
+    $('div.modal-body').html(html);
+    
+    
+});
+
+$('input#btnNew').on('click',function(e){ user={};
+    
+    user={};
+    user.id=0;
+    
+    var html ='<table class="table table-bordered negative">'
+    html += '<tr>'
+    html += '<td>id</td>'
+    html += '<td></td>'
+    html += '<td>user name</td>'
+    html += '<td><input type="text" class="username" value=""/></td>'
+    html += '</tr>'
+    html += '<tr>'
+    html += '<td>Admin</td>'
+    html += '<td colspan="3">'
+    html += '<input type="checkbox" class="admin" /></td>'
+    html += '</tr>'
+    html += '<tr>'
+    html += '<td>first name</td>'
+    html += '<td><input type="text" class="firstname" value=""/></td>'
+    html += '<td>surname</td>'
+    html += '<td><input type="text" class="surname" value=""/></td>'
+    html += '</tr>'
+    
+    html += '<tr>'
+    html += '<td>password</td>'
+    html += '<td><input type="password" class="password" placeholder="enter password"/></td>'
+    html += '<td>confirm password</td>'
+    html += '<td><input type="password" class="confirm-password" placeholder="confirm password"/></td>'
+    html += '</tr>'
+    html += '</table>'
+    
+    
+    $('div.modal-body').html(html);
+    
+    
+});
+
+$('button.btn-save').on('click',function(){
+    $('p.text-danger p.text-success').empty();
+  
+    
+    var isAdmin = $('input.admin').is(":checked")?1:0;
+    
+    var password = $('input.password').val();
+    var confirmPassword=$('input.confirm-password').val();
+    
+    var firstname = $('input.firstname').val();
+    var surname = $('input.surname').val();
+    
+    var username = $('input.username').val();
+    
+    
+    if (!password)
+        return false;
+        
+    if (user.id == 0 && !username.trim().length>0)
+    {
+        $('p.text-danger').html('invalid User Name!'); 
+        return false;
+    }
+        
+    if(password.trim().length>0 && password.trim().length<9) 
+    {
+        
+        $('p.text-danger').html('invalid password length'); 
+        return false;
+    }
+    
+    if (password.trim().length>0 && (password != confirmPassword) ) {
+        $('p.text-danger').html('password do not match'); 
+        
+        return false;
+        
+    }
+    
+    var data={id:user.id,isAdmin:isAdmin,password:password.trim(),firstname:firstname,surname:surname, username:username}
+    
+      var promise = $.post('/api/user/save/',data);
+      promise.then(function(res){
+          
+         $('p.text-success').html('record created successfully');
+           
+           setTimeout(function() {
+            window.location = window.location.href;
+            }, 750);
+           
+           //return false;
+          
+      });
+      
+             
+        
+        //window.location = window.location.href;
+        //return false;
+        
+  });
+
+
+
+
+});
+
+</script>

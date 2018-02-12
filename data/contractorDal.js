@@ -5,6 +5,7 @@ var db = require('./mysqlDb.js');
 var util= require("util");
 var path = require('path');
 var fs = require('fs');
+var vals = require("./const.js");
 
 dal.saveContractor=function(param,cb){
     
@@ -15,7 +16,6 @@ dal.saveContractor=function(param,cb){
     cb(null,data);
 }
 
-
 dal.getContractorList=function(param,cb){
     
     var sql = "select id as c_ID, IF(company_name NOT IN ('', 'NONE', 'None', 'none'), company_name, CONCAT(first_name, ', ', surname)) as displayName from Contractor where (1=1) and (ifnull(deleted,0)=0)";
@@ -23,13 +23,11 @@ dal.getContractorList=function(param,cb){
     sql += ";";
 
     console.log(sql);
-    db.run({sql:sql},function(err,result){
+    db.run({sql:sql,username:param.username},function(err,result){
     if(err) return cb(err);
     cb(null,result);})
     
 }
-
-
 
 dal.getContractorOld=function(param,cb){
     
@@ -53,9 +51,13 @@ dal.getContractorOld=function(param,cb){
 
 dal.getContractor=function(param,cb){
     
+    var key = vals.values['sqlKeyStr'];
     var sql = "select id as c_ID,company_name as companyName,first_name as firstName,surname,address,town,county,";
-    sql +="postCode as postcode,phone,mobile as mobPhone,fax,email,utr,tlcins as tlcIns,payer_type as payerType, fee,";
-    sql +="IF(company_name NOT IN ('', 'NONE', 'None', 'none'), company_name, CONCAT(first_name, ', ', surname)) as displayName from Contractor ";
+    sql +="postCode as postcode,phone,mobile as mobPhone,fax,email, utr,tlcins as tlcIns,payer_type as payerType, fee, ";
+    sql +="IF(company_name NOT IN ('', 'NONE', 'None', 'none'), company_name, CONCAT(first_name, ', ', surname)) as displayName,";
+    sql += util.format("CAST(AES_DECRYPT(bankAccount, '%s') as CHAR(50)) as bankAccount, ",key);
+    sql += util.format("CAST(AES_DECRYPT(bankSortCode, '%s') as CHAR(50)) as bankSortCode ",key);
+    sql += "from Contractor ";
     if ( param.id)
     
      sql += util.format(" where  (id =%d) %s ",param.id," limit 1;");
@@ -66,7 +68,7 @@ dal.getContractor=function(param,cb){
     
     console.log("db script: %s",sql);
     
-    db.run({sql:sql},function(err,result){
+    db.run({sql:sql,username:param.username},function(err,result){
     if(err) return cb(err);
    cb(null,result[0]);
 });
@@ -86,7 +88,47 @@ dal.getContractorNotes=function(param,cb){
     
     console.log("db script: %s",sql);
     
-    db.run({sql:sql},function(err,result){
+    db.run({sql:sql,username:param.username},function(err,result){
+    if(err) return cb(err);
+   cb(null, result);
+});
+
+}
+
+dal.getContractorJobs=function(param,cb){
+    
+    var sql = "select id, jobRef, description, if(isOpen = 1, 'Open', 'Closed') as status";
+    sql +=" from ContractorJobs ";
+    if ( param.id)
+     sql += util.format(" where  (c_ID =%d or %d = 0) order by dated desc",param.id, param.id);
+     
+     else
+     sql = "";
+    
+    
+    console.log("db script: %s",sql);
+    
+    db.run({sql:sql,username:param.username},function(err,result){
+    if(err) return cb(err);
+   cb(null, result);
+});
+
+}
+
+dal.getOpenContractorJobs=function(param,cb){
+    
+    var sql = "select id, jobRef, description";
+    sql +=" from ContractorJobs ";
+    if ( param.id)
+     sql += util.format(" where  (c_ID =%d) and isOpen = 1 order by dated desc",param.id);
+     
+     else
+     sql = "";
+    
+    
+    console.log("db script: %s",sql);
+    
+    db.run({sql:sql,username:param.username},function(err,result){
     if(err) return cb(err);
    cb(null, result);
 });
@@ -101,7 +143,7 @@ dal.getContractorAttachments=function(param,cb){
     
     console.log("db script: %s",sql);
     
-    db.run({sql:sql},function(err,result){
+    db.run({sql:sql,username:param.username},function(err,result){
     if(err) return cb(err);
    cb(null, result);
 });
@@ -116,13 +158,12 @@ dal.getContractorAttachment=function(param,cb){
     
     console.log("db script: %s",sql);
     
-    db.run({sql:sql},function(err,result){
+    db.run({sql:sql,username:param.username},function(err,result){
     if(err) return cb(err);
    cb(null, result);
 });
 
 }
-
 
 dal.saveContractorAttachmentLocation=function(param){
    
@@ -148,7 +189,7 @@ dal.saveContractorAttachmentLocation=function(param){
     
     return new Promise(function(resolve, reject){
      
-        db.runWithValues({sql:sql, values: vals},function(err,result){
+        db.runWithValues({sql:sql, values: vals, username: param.username},function(err,result){
             if(err) 
                 reject("fail");
             else
@@ -180,7 +221,7 @@ dal.saveContractorAttachment=function(param){
     
     return new Promise(function(resolve, reject){
      
-        db.runWithValues({sql:sql, values: vals},function(err,result){
+        db.runWithValues({sql:sql, values: vals, username: param.username},function(err,result){
         fs.unlink(param.filepath);
         
             if(err) 
@@ -197,11 +238,27 @@ dal.saveContractorNote=function(param,cb){
     sql = "insert into Documents(object_id, object_type, notes)";
     sql +=" values (";
     
-    sql += util.format("'%s','contractor','%s');",param.c_ID, param.text);
+    sql += util.format("'%s','contractor','%s');",param.c_ID, param.text.replace(/'/g, "''"));
     
     console.log("db script: %s",sql);
     
-    db.run({sql:sql},function(err,result){
+    db.run({sql:sql,username:param.username},function(err,result){
+    if(err) return cb(err);
+   cb(null,"ok");
+});
+}
+
+dal.saveContractorJob=function(param,cb){
+    
+    var sql ='';
+    sql = "insert into ContractorJobs(c_ID, jobRef, description, isOpen)";
+    sql +=" values (";
+    
+    sql += util.format('"%s","%s","%s",1);',param.c_ID, param.jobRef, param.description.replace(/'/g, "''"));
+    
+    console.log("db script: %s",sql);
+    
+    db.run({sql:sql,username:param.username},function(err,result){
     if(err) return cb(err);
    cb(null,"ok");
 });
@@ -219,7 +276,7 @@ dal.lockPayroll=function(param,cb){
     
     console.log("db script: %s",sql);
     
-    db.run({sql:sql},function(err,result){
+    db.run({sql:sql,username:param.username},function(err,result){
     if(err) return cb(err);
    cb(null,"ok");
 });
@@ -228,6 +285,10 @@ dal.lockPayroll=function(param,cb){
 
 dal.saveContractor=function(param,cb){
     var sql ='';
+    var key = vals.values['sqlKeyStr'];
+    
+    var bAccount = util.format("AES_ENCRYPT('%s','%s')", param.bankAccount, key);
+    var bSortCode = util.format("AES_ENCRYPT('%s','%s')", param.bankSortCode, key);
    
     if (!param.id)
     {
@@ -239,15 +300,13 @@ dal.saveContractor=function(param,cb){
         "email":"deborah.mallet@btconnect.com","utr":"7721008666","tlcIns":5,"fee":"20","payerType":"Net Payer"}
 
   */
-    sql = "insert into Contractor(company_name,first_name,surname,address,town,county,";
-    sql +="postCode,phone,mobile,fax,email,utr,tlcins,payer_type, fee";
+    sql = "insert into Contractor(company_name, first_name,surname,address,town,county,";
+    sql +="postCode,phone,mobile,fax,email,utr,tlcins,payer_type, fee, bankAccount, bankSortCode";
     sql +=") values (";
     
-    
-    
-    sql += util.format("'%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s');"
-    ,param.companyName,	param.firstName,	param.surname,	param.address,	param.town,	param.county,	param.postcode,	param.phone,
-    param.mobPhone,param.fax,	param.email,	param.utr,	param.tlcIns,	param.payerType, 	param.fee
+    sql += util.format("'%s', '%s','%s','%s','%s','%s', '%s','%s','%s','%s','%s','%s','%s','%s','%s', %s, %s);"
+    ,param.companyName.replace(/'/g, "''"),	param.firstName.replace(/'/g, "''"),	param.surname.replace(/'/g, "''"),	param.address.replace(/'/g, "''"),	param.town.replace(/'/g, "''"),	param.county.replace(/'/g, "''"),	param.postcode,	param.phone,
+    param.mobPhone,param.fax,	param.email,	param.utr,	param.tlcIns,	param.payerType, 	param.fee, bAccount, bSortCode
     );
     
     }
@@ -255,12 +314,12 @@ dal.saveContractor=function(param,cb){
     else
     {
         sql = "update Contractor set ";
-        sql += util.format("company_name='%s',",param.companyName);
-        sql += util.format("first_name='%s',",param.firstName);
-        sql += util.format("surname='%s',",param.surname);
-        sql += util.format("address='%s',",param.address);
-        sql += util.format("town='%s',",param.town);
-        sql += util.format("county='%s',",param.county);
+        sql += util.format("company_name='%s',",param.companyName.replace(/'/g, "''"));
+        sql += util.format("first_name='%s',",param.firstName.replace(/'/g, "''"));
+        sql += util.format("surname='%s',",param.surname.replace(/'/g, "''"));
+        sql += util.format("address='%s',",param.address.replace(/'/g, "''"));
+        sql += util.format("town='%s',",param.town.replace(/'/g, "''"));
+        sql += util.format("county='%s',",param.county.replace(/'/g, "''"));
         sql += util.format("postCode='%s',",param.postcode);
         sql += util.format("phone='%s',",param.phone);
         sql += util.format("mobile='%s',",param.mobPhone);
@@ -269,20 +328,22 @@ dal.saveContractor=function(param,cb){
         sql += util.format("utr='%s',",param.utr);
         sql += util.format("tlcins='%s',",param.tlcIns);
         sql += util.format("payer_type='%s',",param.payerType);
-        sql += util.format("fee='%s'",param.fee);
+        sql += util.format("fee='%s',",param.fee);
+        sql += util.format("bankAccount=%s,",bAccount);
+        sql += util.format("bankSortCode=%s",bSortCode);
 	    
 	    sql += util.format(" where id=%d",param.id);
         
     }
+    console.log('Update Contractor');
     console.log("db script: %s",sql);
     
-    db.run({sql:sql},function(err,result){
+    db.run({sql:sql,username:param.username},function(err,result){
     if(err) return cb(err);
    cb(null,"ok");
 });
 
 }
-
 
 dal.deleteContractorAttachment=function(param,cb){
     
@@ -293,7 +354,7 @@ dal.deleteContractorAttachment=function(param,cb){
             sql = util.format("delete from Documents where id = %s; ", param.id);
             console.log("db script: %s",sql);
             
-            db.run({sql:sql},function(err,data){
+            db.run({sql:sql,username:param.username},function(err,data){
                          fs.unlink(result.link);           
                         if(err) return cb(err);
             
@@ -311,7 +372,7 @@ var getContractorAttachmentFilePath=function(param,cb){
     
     console.log("db script: %s",sql);
     
-    db.run({sql:sql},function(err,result){
+    db.run({sql:sql,username:param.username},function(err,result){
     if(err) return cb(err);
    cb(null, result[0]);
 });
@@ -335,7 +396,7 @@ dal.deleteContractor=function(param,cb){
     }
     console.log("db script: %s",sql);
     
-    db.run({sql:sql},function(err,result){
+    db.run({sql:sql,username:param.username},function(err,result){
     if(err) return cb(err);
    cb(null,"ok");
 });

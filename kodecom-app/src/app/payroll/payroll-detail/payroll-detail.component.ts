@@ -17,6 +17,7 @@ declare var $:any;
 })
 export class PayrollDetailComponent implements OnInit {
   subContractorName: string;
+  jobName: string;
   payroll: Payroll;
   id: number;
   public tax: number = 0;

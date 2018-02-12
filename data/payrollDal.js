@@ -8,20 +8,26 @@ var util= require("util");
 dal.getPayrollForSubContractor=function(param,cb){
 
     var sql ='';
-    sql = util.format("select id as p_ID, contractor_id as c_ID, subcontractor_id as s_ID, week_ending as weekEnding, payment_date as paymentDate, month_ending_date as monthEndingDate, deduction_rate as deductionRate, vat_rate as vatRate, gross, fee, materials, locked from Payroll where subcontractor_id = %s;", param.id);
+    sql = "select pay.id as p_ID, contractor_id as c_ID, subcontractor_id as s_ID, week_ending as weekEnding, payment_date as paymentDate, month_ending_date as monthEndingDate, deduction_rate as deductionRate, vat_rate as vatRate, gross, fee, materials, locked, jobId, jobs.jobRef as jobName "+ 
+    " from Payroll as pay" + 
+    " LEFT JOIN ContractorJobs AS jobs ON pay.jobId = jobs.id"+
+    util.format(" where subcontractor_id = %s;", param.id);
 
     console.log(sql);
     
-    db.run({sql: sql},function(err,result){
+    db.run({sql: sql,username:param.username},function(err,result){
     if(err) return cb(err);
     cb(null,result);})
 }
 
 dal.getPayroll=function(param,cb){
     
-    var cmd = util.format("select id as p_ID, contractor_id as c_ID, subcontractor_id as s_ID, week_ending as weekEnding, payment_date as paymentDate, month_ending_date as monthEndingDate, deduction_rate as deductionRate, vat_rate as vatRate, gross, fee, materials, locked from Payroll where id = %s order by payment_date desc;", param.id);
+    var cmd = util.format("select pay.id as p_ID, contractor_id as c_ID, subcontractor_id as s_ID, week_ending as weekEnding, payment_date as paymentDate, month_ending_date as monthEndingDate, deduction_rate as deductionRate, vat_rate as vatRate, gross, fee, materials, locked, jobId, "+
+    " CONCAT(jobs.jobRef, '-', jobs.description) as jobName " +
+    " from Payroll as pay"+
+    " LEFT JOIN ContractorJobs AS jobs ON pay.jobId = jobs.id where pay.id = %s order by payment_date desc;", param.id);
     console.log(cmd);
-    db.run({sql:cmd},function(err,result){
+    db.run({sql:cmd, username:param.username},function(err,result){
     if(err) return cb(err);
    cb(null,result[0]);
 })
@@ -41,12 +47,26 @@ dal.getPayrollDeductions=function(param,cb){
     
     console.log("db script: %s",sql);
     
-    db.run({sql:sql},function(err,result){
+    db.run({sql:sql,username:param.username},function(err,result){
     if(err) return cb(err);
    cb(null, result);
 });
 
 }
+
+dal.deletePayroll=function(param,cb){
+    
+    var sql ='';
+            sql = util.format("delete from tblPayrollDeductions where payroll_id = %s; delete from Payroll where id = %s; ", param.id, param.id);
+            console.log("db script: %s",sql);
+            
+            db.run({sql:sql,username:param.username},function(err,data){
+                        if(err) return cb(err);
+            
+                        cb(null,"ok");
+});
+}
+
 
 dal.deletePayrollDeduction=function(param,cb){
     
@@ -54,7 +74,7 @@ dal.deletePayrollDeduction=function(param,cb){
             sql = util.format("delete from tblPayrollDeductions where id = %s; ", param.id);
             console.log("db script: %s",sql);
             
-            db.run({sql:sql},function(err,data){
+            db.run({sql:sql,username:param.username},function(err,data){
                         if(err) return cb(err);
             
                         cb(null,"ok");
@@ -68,11 +88,11 @@ dal.savePayroll=function(param,cb){
     {
         
     sql = "insert into Payroll(contractor_id, subcontractor_id, week_ending, payment_date, month_ending_date, deduction_rate, vat_rate,";
-    sql +="gross, fee, materials, locked) values (";
+    sql +="gross, fee, materials, locked, jobId) values (";
     
-    sql += util.format("'%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s');",
+    sql += util.format("'%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s', '%s');",
     param.cid ,param.sid, param.weekEnding, param.paymentDate, param.monthEndingDate,param.deductionRate, param.vatRate,	param.gross, param.fee,
-    param.materials, param.locked);
+    param.materials, param.locked, param.jobId);
     }
     
     else
@@ -86,18 +106,41 @@ dal.savePayroll=function(param,cb){
         sql += util.format("gross='%s',",param.gross);
         sql += util.format("fee='%s',",param.fee);
         sql += util.format("materials='%s',",param.materials);
-        sql += util.format("locked='%s'",param.locked);
+        sql += util.format("locked='%s',",param.locked);
+        sql += util.format("jobId='%s'",param.jobId);
 	    
 	    sql += util.format(" where id=%d",param.id);
         
     }
     console.log("db script: %s",sql);
     
-    db.run({sql:sql},function(err,result){
+    db.run({sql:sql,username:param.username},function(err,result){
     if(err) return cb(err);
    cb(null,"ok");
 });
 
+}
+
+dal.savePayrollGetId=function(param,cb){
+    var sql ='';
+   
+    sql = "insert into Payroll(contractor_id, subcontractor_id, week_ending, payment_date, month_ending_date, deduction_rate, vat_rate,";
+        sql +="gross, fee, materials, locked, jobId) values (";
+        
+        sql += util.format("'%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s', '%s');",
+        param.cid ,param.sid, param.weekEnding, param.paymentDate, param.monthEndingDate,param.deductionRate, param.vatRate,	param.gross, param.fee,
+        param.materials, param.locked, param.jobId);
+        
+        sql += "SELECT LAST_INSERT_ID() as Id;";
+        
+        console.log("db script: %s",sql);
+        
+        db.run({sql:sql,username:param.username},function(err,result){
+        if(err) 
+            return cb(err);
+        else
+            return cb(null, result[1][0]);
+        });
 }
 
 dal.savePayrollDeduction=function(param,cb){
@@ -106,11 +149,11 @@ dal.savePayrollDeduction=function(param,cb){
     sql = "insert into tblPayrollDeductions(payroll_id, description, amount)";
     sql +=" values (";
     
-    sql += util.format("'%s','%s','%s');", param.payroll_id, param.description, param.amount);
+    sql += util.format("'%s','%s','%s');", param.payroll_id, param.description.replace(/'/g, "''"), param.amount);
     
     console.log("db script: %s",sql);
     
-    db.run({sql:sql},function(err,result){
+    db.run({sql:sql,username:param.username},function(err,result){
     if(err) return cb(err);
    cb(null,"ok");
 });

@@ -10,6 +10,8 @@ body {
 }
 img {
   border:0;
+  max-height: 100px;
+  max-width: 100px;
 }
 
 #page {
@@ -25,15 +27,16 @@ img {
 }
 
 #address {
-  height:192px;
+  max-height:100px;
   margin-left:250px;
-  margin-top:50px;
+  margin-top:5px;
   float:right;
 }
 
 #content {
-padding-top:200px;
+clear:both;
 }
+
 
 table {
   width:100%;
@@ -46,6 +49,7 @@ padding:0px;
 font-size:.85em;
 text-align:left;
 }
+
 td {
 padding:0px;
 font-size:.70em;
@@ -64,6 +68,7 @@ table td.absorbing-column {
 tr.odd {
   background:#e1ffe1;
 }
+
 
 .special div {
     border-bottom: 2px solid black;
@@ -98,6 +103,7 @@ table.topAndBottom {
   border-bottom:1px solid black;
 }
 
+
 </style>
 <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
 <link rel="stylesheet" href="print.css" type="text/css" media="print">
@@ -111,22 +117,25 @@ table.topAndBottom {
         <a href='#' class='export-pdf'>Download</a>
     </div>
     }
+    
+  
+    <h1>@model.dblist</h1>
 </body>
 </html>    
 <script type="text/javascript" >
     
     $(document).ready(function(){
-       
      ($('.report-url').data('mode') =='pdf') ? $('.export-pdf').hide():$('.export-pdf').show();
     
        
         $('.export-pdf').on('click',function(){
-          
           var reportUrl = $(this).data('url');
           var reportname = $('.report-url').data('name');
-          //alert(reportUrl);
           //var url ='https://kode-com-kerrjp.c9users.io/report?report=' + reportUrl +'/pdf';
-          var url ='/report?name='+reportname+'&report=' + reportUrl +'/pdf';
+          // for local testing
+          // url ='https://kode-com-kerrjp.c9users.io/report?name='+reportname+'&report=' + reportUrl;
+           
+          var url ='/report?name='+reportname+'&report=' + reportUrl;
           
             window.open(url);     
            

@@ -52,16 +52,12 @@
     <tr class="odd"><td><strong></strong></td><td><strong>Total Amount</strong></td><td><div>@model.pay_totalWithVat</div></td></tr>
     </table>
     <p>
-      Thank you for your order!  This transaction will appear on your billing statement as "Your Company".<br />
-      If you have any questions, please feel free to contact us at <a href="mailto:youremail@somewhere.com">youremail@somewhere.com</a>.
+      <center>Any Queries, Please feel free to contact us at <a href="mailto:youremail@somewhere.com">youremail@somewhere.com</a>.</center>
     </p>
-
-    <hr/>
     <p>
-      <center><small>This communication is for the exclusive use of the addressee and may contain proprietary, confidential or privileged information. If you are not the intended recipient any use, copying, disclosure, dissemination or distribution is strictly prohibited.
-      <br /><br />
-      &copy; Your Company All Rights Reserved
-      </small></center>
+      <center>
+        <small>This communication is for the exclusive use of the addressee and may contain proprietary, confidential or privileged information. If you are not the intended recipient any use, copying, disclosure, dissemination or distribution is strictly prohibited.
+        <br />&copy; Your Company All Rights Reserved</small></center>
     </p>
   </div><!--end content-->
 </div><!--end page-->

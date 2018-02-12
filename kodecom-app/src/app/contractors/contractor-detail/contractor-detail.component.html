@@ -29,7 +29,32 @@
             <dd>{{ contractor.tlcIns | currency:'GBP':true}}</dd>
             <dt>Payer Type:</dt>
             <dd>{{ contractor.payerType }}</dd>
+            <!-- <dt>Account No:</dt>
+            <dd>{{ contractor.bankAccount }}</dd>
+            <dt>Sort Code:</dt>
+            <dd>{{ contractor.bankSortCode }}</dd> -->
           </dl>
+      </div>
+  </div>
+
+  <div class="panel panel-default" >
+  <div class="panel-heading">Jobs</div>
+    <div class="panel-body">
+            <button class="btn btn-success btn-sm" data-target="#addJob" data-toggle="collapse">+</button>
+            <br>
+            <div id="addJob" class="collapse" >
+             <input type="text" id="jobId" placeholder="Job Reference Id" class="form-control" [(ngModel)]="newJobId" maxlength="2"/>
+             <textarea id="jobText" class="form-control" placeholder="Job Reference" rows="1" [(ngModel)]="newJob"></textarea>
+             <button *ngIf="newJob && newJob.length > 0 && newJobId && newJobId.length > 0" (click)="onAddJob()" class="btn btn-success btn-sm" data-toggle="collapse" data-target="#addJob">Add</button>
+             <button class="btn btn-warning btn-sm" data-toggle="collapse" data-target="#addJob">Cancel</button>
+             <br>
+            </div>
+          <div class="list-group small-restricted-height" >
+            <app-contractor-job-item 
+              *ngFor="let job of contractor.attachedJobs"
+              [contractorJob]="job"
+              ></app-contractor-job-item>
+      </div>
       </div>
   </div>
   

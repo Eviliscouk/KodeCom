@@ -39,6 +39,10 @@ function initPassport () {
     function(username, password, done) {
       
       findUser(username, function (err, user) {
+        
+      
+        
+        
         if (err) {
           return done(err)
         }

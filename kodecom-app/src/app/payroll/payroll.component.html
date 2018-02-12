@@ -24,10 +24,13 @@
                             <th style="width: 20%">
                                 <mfDefaultSorter by="monthEndingDate">Month Ending</mfDefaultSorter>
                             </th>
-                            <th style="width: 20%">
+                            <th style="width: 15%">
                                 <mfDefaultSorter by="gross">Gross</mfDefaultSorter>
                             </th>
-                            <th style="width: 20%"></th>
+                            <th style="width: 15%">
+                                <mfDefaultSorter by="jobName">Job</mfDefaultSorter>
+                            </th>
+                            <th style="width: 10%"></th>
                         </tr>
                         <!--<tr>-->
                         <!--    <th colspan="5">-->
@@ -42,6 +45,7 @@
                             <td>{{item.weekEnding | date:'dd-MM-yyyy'}}</td>
                             <td>{{item.monthEndingDate | date:'dd-MM-yyyy'}}</td>
                             <td>{{item.gross | currency:'GBP':true}}</td>
+                            <td>{{item.jobName}}</td>
                             <td>
                                 
                                 <button (click)="viewItem(item)" class="btn btn-primary btn-sm">View</button>

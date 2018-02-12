@@ -5,6 +5,7 @@ import { Subscription } from 'rxjs/Subscription';
 
 import { SubContractor } from '../subcontractor.model';
 import { SubContractorService } from '../subcontractor.service';
+import { Job } from '../../shared/job.model';
 
 @Component({
   selector: 'app-subcontractor-edit',
@@ -22,6 +23,7 @@ export class SubcontractorEditComponent implements OnInit, AfterViewInit, OnDest
   message: string = "";
   private sub: any;
   subcontractorRoute = '';
+  public jobs : Job[];
 
   constructor(private route: ActivatedRoute, private router: Router, private subcontractorsService: SubContractorService) { }
 
@@ -36,6 +38,7 @@ export class SubcontractorEditComponent implements OnInit, AfterViewInit, OnDest
 
       this.sub = this.route.parent.params.subscribe(params => {
             this.contractorId = +params["id"];
+            this.subcontractorsService.getOpenContractorJobs(this.contractorId).subscribe(j => {this.jobs = j;});
         });
   }
   
@@ -67,6 +70,9 @@ export class SubcontractorEditComponent implements OnInit, AfterViewInit, OnDest
              services: s.services,
              active: s.active,
              contractRecd: s.contractRecd,
+             bankAccount: s.bankAccount,
+             bankSortCode: s.bankSortCode,
+             currentJob: s.currentJob
            });});
           }
           else

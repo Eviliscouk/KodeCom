@@ -11,7 +11,7 @@ export class FilterDisplayNamePipe implements PipeTransform {
             return items;
         }
 
-        return items.filter(item => item.displayName.toLowerCase().indexOf(filter.toLowerCase()) !== -1);
+        return items.filter(item => item.displayName != null && item.displayName.toLowerCase().indexOf(filter.toLowerCase()) !== -1);
   }
 
 }

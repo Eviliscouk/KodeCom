@@ -27,39 +27,52 @@
 	  @model.sub_county<br />
 	  @model.sub_postCode<br />
 	</p>
-	<br/>
 	<p >
-      <strong>Sub Contractor: </strong>@model.sub_displayName <br />
-	  <br />
-	  <strong>Contractor: </strong>@model.con_displayName <br />
+      <strong>Sub Contractor: </strong>@model.sub_displayName
+	  <strong>Contractor: </strong>@model.con_displayName
 	</p>
     <hr>
     <table>
       <tr><td><strong>Quantity</strong></td><td><strong>Description</strong></td><td><strong>Unit Price</strong></td><td><strong>Total</strong></td></tr>
-	  <tr class="odd">
-	   <td> @model.invoiceCount </td> 
-	   <td>Administrative Fee for the period ending @model.today</td> 
-	   <td> @model.unitPrice </td> 
-	   <td> @model.total </td> 
-	  </tr>
-	  <tr class="even">
+       @{	
+			var isOdd = true;
+			var total = 0;
+		}
+      @model.items.forEach(function(item){ 
+	 
+		@{
+            total += item.total;
+            var unitPrice = item.unitPrice;
+            var count = item.count;
+            var invTotal = item.total;
+		}
+	 
+	 	<tr class="@(isOdd ? 'odd' : '')">
+		    <td> @count </td> 
+	        <td> Invoices raised @ </td> 
+	        <td> @unitPrice.toFixed(2) </td> 
+	        <td> @invTotal.toFixed(2) </td> 
+	    </tr>
+		
+		@{isOdd = !isOdd};
+		})
+	  
+	  <tr class="@(isOdd ? 'odd' : '')">
 	  <td></td> 
-	  <td></td> 
+	  <td>Administrative Fee for the period ending @model.yearEnd</td> 
 	  <td class="special"><strong><div>TOTAL</div></strong></td>
-	  <td>@model.total</td>
+	  <td>@total.toFixed(2)</td>
 	  </tr>
     </table>
     <hr>
     <p>
-      PAID WITH THANKS, Thank you for your Business! <br />
+    <small>PAID WITH THANKS, Thank you for your Business!</small>
     </p>
-
-    <hr>
     <p>
       <center><small>This communication is for the exclusive use of the addressee and may contain proprietary, confidential or privileged information. If you are not the intended recipient any use, copying, disclosure, dissemination or distribution is strictly prohibited.
-      <br /><br />
-	  <strong>KODECOM is the trading name of Kode Compliance Ltd</strong>
-      &copy; KODECOM All Rights Reserved
+      <br />
+	  <strong>@model.DbName is the trading name of @model.DbName Compliance Ltd</strong>
+      &copy; @model.DbName All Rights Reserved
       </small></center>
     </p>
   </div><!--end content-->

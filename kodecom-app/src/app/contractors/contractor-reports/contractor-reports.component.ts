@@ -5,6 +5,7 @@ import { Subscription } from 'rxjs/Subscription';
 
 import { Contractor } from '../contractor.model';
 import { ContractorService } from '../contractor.service';
+import { Job } from '../../shared/job.model';
 
 declare var $:any;
 
@@ -19,6 +20,9 @@ public paymentDate: Date;
 public monthEnd: Date;
 public fromDate: Date;
 public toDate: Date;
+public jobs : Job[];
+public jobId : number = 0;
+
   constructor(private route: ActivatedRoute, private router: Router, private contractorsService: ContractorService) { }
 
   ngOnInit() {
@@ -30,6 +34,8 @@ public toDate: Date;
           this.monthEnd = new Date();
           this.fromDate = new Date();
           this.toDate = new Date();
+          this.jobId = 0;
+          this.contractorsService.getContractorJobs(this.id).subscribe(j => {this.jobs = j; this.jobs.unshift(new Job(0, 0,'All', 'Jobs'));});
         }
       );
   }
@@ -42,17 +48,17 @@ public toDate: Date;
   onViewWeeklyRemittance()
   {
     var str = new Date(this.paymentDate).toLocaleDateString('en-GB').replace(/\//g, "-");
-    this.contractorsService.getContractorWeeklyRemittance(this.id, str);
+    this.contractorsService.getContractorWeeklyRemittance(this.id, str, this.jobId);
   }
 
   async onEmailWeeklyRemittance()
   {
-    var str = new Date(this.monthEnd).toLocaleDateString('en-GB').replace(/\//g, "-");
-    var result = await this.contractorsService.emailContractorWeeklyRemittance(this.id, str);
+    var str = new Date(this.paymentDate).toLocaleDateString('en-GB').replace(/\//g, "-");
+    var result = await this.contractorsService.emailContractorWeeklyRemittance(this.id, str, this.jobId);
     if (result == 'ok')
-      alert('Monthly Return Email Sent!');
+      alert('Weekly Remittance Email Sent!');
     else
-      alert('Error Sending Monthly Return!');
+      alert('Error Sending Weekly Remittance!');
   }
 
   async onLockPayroll(){
@@ -70,18 +76,30 @@ public toDate: Date;
   {
     //$("#myModal").modal('show');
     var str = new Date(this.monthEnd).toLocaleDateString('en-GB').replace(/\//g, "-");
-    this.contractorsService.getContractorMonthlyReturn(this.id, str);
+    this.contractorsService.getContractorMonthlyReturn(this.id, str, this.jobId);
     //$("#myModal").modal('hide');
   }
 
   async onEmailMonthlyReturn()
   {
     var str = new Date(this.monthEnd).toLocaleDateString('en-GB').replace(/\//g, "-");
-    var result = await this.contractorsService.emailContractorMonthlyReturn(this.id, str);
+    var result = await this.contractorsService.emailContractorMonthlyReturn(this.id, str, this.jobId);
     if (result == 'ok')
       alert('Monthly Return Email Sent!');
     else
       alert('Error Sending Monthly Return!');
+  }
+
+  onTextWeeklyRemittance()
+  {
+    var str = new Date(this.paymentDate).toLocaleDateString('en-GB').replace(/\//g, "-");
+    this.contractorsService.getContractorWeeklyRemittanceText(this.id, str, this.jobId);
+  }
+
+  onBankingWeeklyRemittance()
+  {
+    var str = new Date(this.paymentDate).toLocaleDateString('en-GB').replace(/\//g, "-");
+    this.contractorsService.getContractorWeeklyRemittanceBanking(this.id, str, this.jobId);
   }
 
 }

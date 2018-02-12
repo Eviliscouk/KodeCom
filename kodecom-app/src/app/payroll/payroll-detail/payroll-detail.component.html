@@ -5,7 +5,7 @@
 <hr>
 <div class="panel-group" *ngIf="payroll">
   <div class="panel panel-default">
-    <div class="panel-heading"><strong>{{ subContractorName }}</strong></div>
+    <div class="panel-heading"><strong>{{ subContractorName }} - {{ payroll.jobName}}</strong></div>
     <div class="panel-body">
           <dl class="dl-horizontal">
             <dt>Week Ending</dt>
@@ -30,7 +30,7 @@
             <dd>{{tax | currency:'GBP':true}}</dd>
             <dt>VAT</dt>
             <dd>{{vat | currency:'GBP':true}}</dd>
-            <dt>Nett</dt>
+            <dt>Net</dt>
             <dd>{{nett | currency:'GBP':true}}</dd>
             <dt>Locked</dt>
             <dd>

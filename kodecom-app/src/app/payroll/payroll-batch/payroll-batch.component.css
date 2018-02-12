@@ -12,3 +12,10 @@
   min-width: 0px;
   overflow: auto;
 }
+
+.small-restricted-height{
+  height:auto;
+  max-height:100px;
+  overflow-y:auto;
+  text-align: center;  
+}

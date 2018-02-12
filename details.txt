@@ -29,6 +29,7 @@ Password
 
 MYSql
 db - paygenie_KodeCom
+db - paygenie_Paygenie
 user - paygenie_payG
 password - Lilly82!
 
@@ -46,3 +47,9 @@ ng build --prod --aot --output-hashing none
 mysql -u paygenie_payG -p   
 
 ssh paygenie@nlss3.a2hosting.com -p 7822
+
+exec killall -9 node
+
+nvm use v6.11.2
+
+insert into User(active, first_name, surname, username, password) values (1,'Jacquie', 'Kennedy', 'jkennedy', 'cGFzc3dvcmQx');

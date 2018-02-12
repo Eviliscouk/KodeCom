@@ -11,6 +11,8 @@
     const pdf = require("../helper/pdf.js");
     const mailer = require("../helper/mail.js");
     const dalHelper = require('../data/helperFunction.js');
+    const url = require('url');
+    var helper = require('./helper.js');
     
     reportsController.init= function(app){
          setupRoutes(app);    
@@ -21,12 +23,18 @@ var setupRoutes=function(app){
     
        console.log("setting up reports route");
         
-       app.get("/api/reports/subContractorInvoice/:id/:mode?", /*passport.authenticationMiddleware(),*/function(req,res){
+       app.get("/api/reports/subContractorInvoice/:id/:mode?/:user?", /*passport.authenticationMiddleware(),*/function(req,res){
         
          var option ={};        
         option.mode = req.params.mode || 'html';
-        
-        db.getSubcontractorInvoiceData(req.params,function(err,data){
+          var params=req.params;
+            
+        if (req.user)
+            params.username = req.user.username;
+        else if (req.query.user)
+            params.username = req.query.user;
+            
+        db.getSubcontractorInvoiceData(params,function(err,data){
            data.url = req.url;
            if(err)
            {
@@ -35,34 +43,63 @@ var setupRoutes=function(app){
            }
            else{
                data.renderOption= option;
-               data.logoUrl = process.params.logoUrl;
-              res.render('./reports/SubContractorInvoice',data);
+               
+               var dbData = app.get("logoUrls");
+               
+               helper.getUserLogoUrl(dbData,params.username)
+               .then(function(result){
+                   
+                    data.logoUrl = process.params.baseUrl + result.url;
+                    data.DbName = result.name;
+                    res.render('./reports/SubContractorInvoice',data);
+               });
           }
         });
         
         });
         
-        app.get("/api/reports/batchSubContractorInvoice/:paymentDate", passport.authenticationMiddleware(),function(req,res){
+        app.get("/api/reports/batchSubContractorInvoice/:paymentDate/:jobs", passport.authenticationMiddleware(),function(req,res){
             
-            dalHelper.getPayrollIds(req.params).then(function(items)
-            {
-                this.generateZipFileName('SubContractorInvoice').then(function(fileName){
-                    dalHelper.CreateBatchRecord({file: fileName, username: req.user.username}).then(function(result){
-                    
-                        res.send("Ok");
-                        createBatch({url: '/api/reports/subContractorInvoice/'+'%s'+'/pdf', reportName: 'SubContractorInvoice', zipName: fileName}, items);      
+            var jobIds = JSON.parse(req.params.jobs);
+            var params = req.params;
+            params.username = req.user.username;
+            
+            jobIds.forEach(function(jobId){
+                dalHelper.getJobNameFromId({id:jobId,username:params.username}).then(function(jobNameResult)
+                {
+                    var params=req.params;
+                    params.username = req.user.username;
+                    dalHelper.getPayrollIds(params, jobId).then(function(items)
+                    {
+                        if (items.length > 0)
+                        {
+                            this.generateZipFileName('SubContractorInvoice-' + jobNameResult.jobName).then(function(fileName){
+                                dalHelper.CreateBatchRecord({file: fileName, username: params.username}).then(function(result){
+                                
+                                    res.send("Ok");
+                                    createBatch({url: '/api/reports/subContractorInvoice/'+'%s'+'/pdf', reportName: 'SubContractorInvoice', user: req.user.username, zipName: fileName}, items);      
+                                });
+                            });
+                        }
+                        else
+                         res.send("No Items");
                     });
                 });
             });
-                
         });
         
-        app.get("/api/reports/contractorMonthlyReturn/:id/:monthEnd/:mode?", /*passport.authenticationMiddleware(),*/function(req,res){
+        app.get("/api/reports/contractorMonthlyReturn/:id/:monthEnd/:jobId/:mode?/:user?", /*passport.authenticationMiddleware(),*/function(req,res){
 
         var option ={};        
         option.mode = req.params.mode || 'html';
+        var params=req.params;
         
-        db.getContractorMonthlyReturnData(req.params,function(err,data){
+        if (req.user)
+            params.username = req.user.username;
+        else if (req.query.user)
+            params.username = req.query.user;
+        
+        db.getContractorMonthlyReturnData(params,function(err,data){
            
            if(err)
            {
@@ -76,18 +113,238 @@ var setupRoutes=function(app){
                 
                 finalObject.renderOption= option;
                 finalObject.url = req.url;
-                finalObject.logoUrl = process.params.logoUrl;
-              res.render('./reports/ContractorMonthlyReturn',finalObject);
+                
+                var dbData = app.get("logoUrls");
+                
+                helper.getUserLogoUrl(dbData,params.username)
+               .then(function(result){
+                   console.log('logo path - ' + result)
+                   
+                    finalObject.logoUrl = process.params.baseUrl + result.url;
+                    finalObject.DbName = result.name;
+                    res.render('./reports/ContractorMonthlyReturn',finalObject);
+               });
           }
         });
         
         });
         
-        app.get("/api/reports/contractorWeeklyRemittance/:id/:paymentDate/:mode?", /*passport.authenticationMiddleware(),*/function(req,res){
+        app.get("/api/reports/contractorWeeklyText/:id/:paymentDate/:jobId", passport.authenticationMiddleware(),function(req,res){
+         var params=req.params;
+            params.username = req.user.username;
+            db.getContractorWeeklyRemittanceData(params,function(err,data){
+               if(err)
+               {
+                   console.log(err);
+                   res.send(err);
+               }
+               else{
+                    var items = data[1];
+                    
+                    var csv ='Name,Number,Gross,Materials,Taxable,Tax,VAT,Net,Fee,Deductions,Payable' + "\n";
+                    items.forEach(function(item){
+                        
+                        var tax = item.taxable * (item.deduction_rate / 100);
+                        var net = item.gross - tax;
+                        var vat = item.gross * (item.vat_rate / 100);
+                        var subTotal = net + vat;
+                        var payable = subTotal - item.deductionTotal - item.fee;
+                        
+                        var row = item.sub_displayName.replace(/,/g, '') + ','+  
+                                  item.sub_ContactNumber + ','+ 
+                                  item.gross.toFixed(2) + ','+ 
+                                  item.materials.toFixed(2) + ','+ 
+                                  item.taxable.toFixed(2) + ','+
+                                  tax.toFixed(2) + ','+
+                                  vat.toFixed(2) + ','+
+                                  net.toFixed(2) + ','+
+                                  item.fee.toFixed(2) + ','+
+                                  item.deductionTotal.toFixed(2) + ','+
+                                  payable.toFixed(2) /*+ ','+
+                                  item.bankAccount + '\t,'+
+                                  item.bankSortCode + '\t'*/;
+                        csv += row + "\n";
+                    }); 
+                    res.setHeader('Content-disposition', 'attachment; filename=ContractorTextReport.csv');
+                    res.set('Content-Type', 'text/csv');
+                    res.status(200).send(csv);
+              }
+            });
+        
+        });
+        
+        app.get("/api/reports/contractorWeeklyBanking/:id/:paymentDate/:jobId", passport.authenticationMiddleware(), function(req,res){
+            var params=req.params;
+            params.username = req.user.username;
+            db.getContractorWeeklyRemittanceData(params,function(err,data){
+               if(err)
+               {
+                   console.log(err);
+                   res.send(err);
+               }
+               else{
+                    var conData = data[0][0];
+                    var items = data[1];
+                    
+                    var ref = conData.WeekEnding.replace(/\//g, "");
+                    
+                    var csv ='Sort Code,Name,Account,Ref,Payable' + "\n";
+                    items.forEach(function(item){
+                        
+                        var tax = item.taxable * (item.deduction_rate / 100);
+                        var net = item.gross - tax;
+                        var vat = item.gross * (item.vat_rate / 100);
+                        var subTotal = net + vat;
+                        var payable = subTotal - item.deductionTotal - item.fee;
+                        
+                        var row = item.bankSortCode + ','+ 
+                                  item.sub_displayName.replace(/,/g, '') + ','+  
+                                  item.bankAccount + ','+ 
+                                  item.jobRef + ref +','+ 
+                                  payable.toFixed(2) + '' ;
+                        csv += row + "\n";
+                    }); 
+                    res.setHeader('Content-disposition', 'attachment; filename=ContractorBankingReport.csv');
+                    res.set('Content-Type', 'text/csv');
+                    res.status(200).send(csv);
+              }
+            });
+        
+        });
+        
+        app.get("/api/reports/contractorData/", passport.authenticationMiddleware(), function(req,res){
+            var params=req.params;
+            params.username = req.user.username;
+            db.getContractorData(params,function(err,data){
+               if(err)
+               {
+                   console.log(err);
+                   res.send(err);
+               }
+               else{
+                    
+                    var items = data
+                    
+                    var csv ='Id,CompanyName,First Name,Surname,Address,Town,County,PostCode,Phone,Mobile,Fax,Email,UTR,TLCIns,Payer Type,Notes,Fee,DeletedDate ' + "\n";
+                    items.forEach(function(item){
+                        
+                        var company_name = (item.company_name) ? item.company_name.replace(/,/g , "").replace(/[\r\n]/g, '') : "";
+                        var first_name = (item.first_name) ? item.first_name.replace(/,/g , "").replace(/[\r\n]/g, '') : "";
+                        var surname = (item.surname) ? item.surname.replace(/,/g , "").replace(/[\r\n]/g, '') : ""; 
+                        var address = (item.address) ? item.address.replace(/,/g , "").replace(/[\r\n]/g, '') : "";
+                        var town = (item.town) ? item.town.replace(/,/g , "").replace(/[\r\n]/g, '') : "";
+                        var county = (item.county) ? item.county.replace(/,/g , "").replace(/[\r\n]/g, '') : ""; 
+                        var postCode = (item.postCode) ? item.postCode.replace(/,/g , "").replace(/[\r\n]/g, '') : "";
+                        var phone = (item.phone) ? item.phone.replace(/,/g , "").replace(/[\r\n]/g, '') : "";
+                        var mobile = (item.mobile) ? item.mobile.replace(/,/g , "").replace(/[\r\n]/g, '') : "";
+                        var fax = (item.fax) ? item.fax.replace(/,/g , "").replace(/[\r\n]/g, '') : "";
+                        var email = (item.email) ? item.email.replace(/,/g , "").replace(/[\r\n]/g, '') : "";
+                        var notes = (item.notes) ? item.notes.replace(/,/g , "").replace(/[\r\n]/g, '') : "";
+                        
+                                 
+                       var row = item.id + '\t,'+ 
+                                  company_name + '\t,'+ 
+                                  first_name + '\t,'+  
+                                  surname + '\t,'+ 
+                                  address +'\t,'+ 
+                                  town +'\t,'+ 
+                                  county +'\t,'+
+                                  postCode +'\t,'+
+                                  phone +'\t,'+
+                                  mobile +'\t,'+
+                                  fax +'\t,'+
+                                  email +'\t,'+ 
+                                  item.utr +'\t,'+ 
+                                  item.tlcins +'\t,'+ 
+                                  item.payer_type +'\t,'+
+                                  notes.replace(/,/g , "") +'\t,'+
+                                  item.fee +'\t,'+
+                                  item.deleted_datetime 
+                        csv += row + "\n";
+                    }); 
+                    res.setHeader('Content-disposition', 'attachment; filename=ContractorDataReport.csv');
+                    res.set('Content-Type', 'text/csv');
+                    res.status(200).send(csv);
+              }
+            });
+        
+        });
+        
+        app.get("/api/reports/subContractorData/", passport.authenticationMiddleware(), function(req,res){
+            var params=req.params;
+            params.username = req.user.username;
+            db.getSubContractorData(params,function(err,data){
+               if(err)
+               {
+                   console.log(err);
+                   res.send(err);
+               }
+               else{
+                    
+                    var items = data
+                    
+                    var csv ='Id,CompanyName,First Name,Surname,Address,Town,County,PostCode,Phone,Mobile,Fax,Email,UTR,NINO,Reg No,Verification No,Deduction Rate,VAT Rate,Services,IsActive,Contract Received,Notes,Bank Account,Sort Code ' + "\n";
+                    items.forEach(function(item){
+                        
+                        var company_name = (item.company_name) ? item.company_name.replace(/,/g , "").replace(/[\r\n]/g, '') : "";
+                        var first_name = (item.first_name) ? item.first_name.replace(/,/g , "").replace(/[\r\n]/g, '') : "";
+                        var surname = (item.surname) ? item.surname.replace(/,/g , "").replace(/[\r\n]/g, '') : ""; 
+                        var address = (item.address) ? item.address.replace(/,/g , "").replace(/[\r\n]/g, '') : "";
+                        var town = (item.town) ? item.town.replace(/,/g , "").replace(/[\r\n]/g, '') : "";
+                        var county = (item.county) ? item.county.replace(/,/g , "").replace(/[\r\n]/g, '') : ""; 
+                        var postCode = (item.postCode) ? item.postCode.replace(/,/g , "").replace(/[\r\n]/g, '') : "";
+                        var phone = (item.phone) ? item.phone.replace(/,/g , "").replace(/[\r\n]/g, '') : "";
+                        var mobile = (item.mobile) ? item.mobile.replace(/,/g , "").replace(/[\r\n]/g, '') : "";
+                        var fax = (item.fax) ? item.fax.replace(/,/g , "").replace(/[\r\n]/g, '') : "";
+                        var email = (item.email) ? item.email.replace(/,/g , "").replace(/[\r\n]/g, '') : "";
+                        var services = (item.services) ? item.services.replace(/,/g , "").replace(/[\r\n]/g, '') : "";
+                        var notes = (item.notes) ? item.notes.replace(/,/g , "").replace(/[\r\n]/g, '') : "";
+                        
+                       var row =  item.id + '\t,'+
+                                  company_name + '\t,'+ 
+                                  first_name + '\t,'+  
+                                  surname + '\t,'+ 
+                                  address +'\t,'+ 
+                                  town +'\t,'+ 
+                                  county +'\t,'+
+                                  postCode +'\t,'+
+                                  phone +'\t,'+
+                                  mobile +'\t,'+
+                                  fax +'\t,'+
+                                  email +'\t,'+ 
+                                  item.utr +'\t,'+ 
+                                  item.nino +'\t,'+ 
+                                  item.companyRegNo +'\t,'+
+                                  item.verification_no +'\t,'+
+                                  item.deduction_rate +'\t,'+
+                                  item.vat_rate +'\t,'+
+                                  services +'\t,'+
+                                  item.active +'\t,'+
+                                  item.contract_recd +'\t,'+
+                                  notes +'\t,'+
+                                  item.bankAcc +'\t,'+
+                                  item.bankSrt
+                        csv += row + "\n";
+                    }); 
+                    res.setHeader('Content-disposition', 'attachment; filename=SubContractorDataReport.csv');
+                    res.set('Content-Type', 'text/csv');
+                    res.status(200).send(csv);
+              }
+            });
+        
+        });
+        
+        app.get("/api/reports/contractorWeeklyRemittance/:id/:paymentDate/:jobId/:mode?/:user?", /*passport.authenticationMiddleware(),*/function(req,res){
              var option ={};        
         option.mode = req.params.mode || 'html';
-        
-        db.getContractorWeeklyRemittanceData(req.params,function(err,data){
+        var params=req.params;
+            
+        if (req.user)
+            params.username = req.user.username;
+        else if (req.query.user)
+            params.username = req.query.user;
+            
+        db.getContractorWeeklyRemittanceData(params,function(err,data){
            if(err)
            {
                console.log(err);
@@ -95,13 +352,22 @@ var setupRoutes=function(app){
            }
            else{
                 data[0][0].items = data[1];
-                var finalObject = Object.assign({}, data[0][0], data[2][0])
+                var finalObject = Object.assign({}, data[0][0])
                 
                 finalObject.url= req.url;
                 finalObject.renderOption= option;
-                finalObject.logoUrl = process.params.logoUrl;
                 
-              res.render('./reports/ContractorWeeklyRemittance',finalObject);
+                var dbData = app.get("logoUrls");
+                
+                 helper.getUserLogoUrl(dbData,params.username)
+               .then(function(result){
+                   
+                    finalObject.logoUrl = process.params.baseUrl + result.url;
+                    finalObject.DbName = result.name;
+                    res.render('./reports/ContractorWeeklyRemittance',finalObject);
+               });
+                
+                
           }
         });
         
@@ -110,7 +376,9 @@ var setupRoutes=function(app){
         app.get("/api/reports/getBatches/", passport.authenticationMiddleware(),function(req,res){
         
            var dir = path.resolve('batches');
-           db.getBatchData(req.params,function(err,data){
+           var params=req.params;
+            params.username = req.user.username;
+           db.getBatchData(params,function(err,data){
            if(err)
            {
                console.log(err);
@@ -127,7 +395,9 @@ var setupRoutes=function(app){
         app.get("/api/reports/getBatch/:id", passport.authenticationMiddleware(),function(req,res){
                       
            var dir = path.resolve('batches');
-           db.getBatchItem(req.params,function(err,data){
+           var params=req.params;
+            params.username = req.user.username;
+           db.getBatchItem(params,function(err,data){
            if(err)
            {
                console.log(err);
@@ -153,7 +423,9 @@ var setupRoutes=function(app){
         app.get("/api/reports/deleteBatch/:id", passport.authenticationMiddleware(),function(req,res){
         
                 var dir = path.resolve('batches');
-           db.getBatchItem(req.params,function(err,data){
+                var params=req.params;
+            params.username = req.user.username;
+           db.getBatchItem(params,function(err,data){
            if(err)
            {
                console.log(err);
@@ -162,20 +434,35 @@ var setupRoutes=function(app){
            else{
                var dir = path.resolve('batches');
                 var filePath = path.join(dir, data.fileName);
-                fs.unlinkSync(filePath);
-                db.deleteBatch(data);
+                
+                var newParam = {};
+                newParam.id = data.id;
+                newParam.username = params.username;
+                
+                db.deleteBatch(newParam);
+                fs.unlink(filePath, err => {
+                    if (err) console.log(err);
+                });
+                
+                
                 res.send('Ok');
           }
             
         });
         });
         
-        app.get("/api/reports/subContractorMonthlyStatement/:id/:monthStart/:monthEnd/:mode?", /*passport.authenticationMiddleware(),*/function(req,res){
+        app.get("/api/reports/subContractorMonthlyStatement/:id/:monthStart/:monthEnd/:jobId/:mode?/:user?", /*passport.authenticationMiddleware(),*/function(req,res){
         
         var option ={};        
         option.mode = req.params.mode || 'html';
-        
-        db.subContractorMonthlyStatement(req.params,function(err,data){
+        var params=req.params;
+            
+        if (req.user)
+            params.username = req.user.username;
+        else if (req.query.user)
+            params.username = req.query.user;
+            
+        db.subContractorMonthlyStatement(params,function(err,data){
            
            if(err)
            {
@@ -183,38 +470,68 @@ var setupRoutes=function(app){
                res.send(err);
            }
            else{
-               var finalObject = Object.assign({}, data[0][0], data[1][0])
+               var finalObject = Object.assign({}, data[0][0], data[1][0]);
             finalObject.renderOption= option;
             finalObject.url= req.url;
-            finalObject.logoUrl = process.params.logoUrl;
-              res.render('./reports/SubContractorMonthlyStatement',finalObject);
+            
+            var dbData = app.get("logoUrls");
+            
+            helper.getUserLogoUrl(dbData,params.username)
+               .then(function(result){
+                   
+                    finalObject.logoUrl = process.params.baseUrl + result.url;
+                    finalObject.DbName = result.name;
+                    res.render('./reports/SubContractorMonthlyStatement',finalObject);
+               });
           }
         });
         
         });
         
-        app.get("/api/reports/batchSubContractorMonthlyStatement/:monthStart/:monthEnd", passport.authenticationMiddleware(),function(req,res){
+        app.get("/api/reports/batchSubContractorMonthlyStatement/:monthStart/:monthEnd/:jobs", passport.authenticationMiddleware(),function(req,res){
             
-            dalHelper.getSubContarctorIdsForMonthlyStat(req.params).then(function(items)
-            {
-                this.generateZipFileName('SubContractorMonthlyStatement').then(function(fileName){
-                    dalHelper.CreateBatchRecord({file: fileName, username: req.user.username}).then(function(result){
-                    
-                        res.send("Ok");
-                    
-                        createBatch({url: '/api/reports/subContractorMonthlyStatement/'+'%s'+'/'+req.params.monthStart+'/'+req.params.monthEnd+'/pdf', reportName: 'SubContractorMonthlyStatement', zipName: fileName}, items);      
+            var jobIds = JSON.parse(req.params.jobs);
+            var params=req.params;
+            params.username = req.user.username;
+            jobIds.forEach(function(jobId){
+            
+                dalHelper.getJobNameFromId({id:jobId,username:params.username}).then(function(jobNameResult)
+                {
+                    dalHelper.getSubContarctorIdsForMonthlyStat(params, jobId).then(function(items)
+                    {
+                        if (items.length > 0)
+                        {
+                            this.generateZipFileName('SubContractorMonthlyStatement-' + jobNameResult.jobName).then(function(fileName){
+                                dalHelper.CreateBatchRecord({file: fileName, username: req.user.username}).then(function(result){
+                                
+                                    res.send("Ok");
+                                
+                                    createBatch({url: '/api/reports/subContractorMonthlyStatement/'+'%s'+'/'+req.params.monthStart+'/'+req.params.monthEnd+'/'+jobId+'/pdf', user: req.user.username, reportName: 'SubContractorMonthlyStatement', zipName: fileName}, items);      
+                                });
+                            });
+                        }
+                        else
+                            res.send("No Items");
                     });
                 });
             });
             
         });
         
-        app.get("/api/reports/KodeComAnnualInvoice/:id/:yearEnd/:mode?", /*passport.authenticationMiddleware(),*/function(req,res){
+        app.get("/api/reports/KodeComAnnualInvoice/:id/:yearEnd/:jobId/:mode?/:user?", /*passport.authenticationMiddleware(),*/function(req,res){
         
         var option ={};        
         option.mode = req.params.mode || 'html';
         
-        db.getKodeComAnnualInvoiceData(req.params,function(err,data){
+        var params=req.params;
+        
+        if (req.user)
+            params.username = req.user.username;
+        else if (req.query.user)
+            params.username = req.query.user;
+            
+        
+        db.getKodeComAnnualInvoiceData(params,function(err,data){
            
            if(err)
            {
@@ -224,26 +541,48 @@ var setupRoutes=function(app){
                res.send(err);
            }
            else{
-                var finalObject = Object.assign({}, data[0][0], data[1][0])
+                data[0][0].items = data[1];
+                var finalObject = Object.assign({}, data[0][0], data[2][0]);
                 finalObject.renderOption= option;
                 finalObject.url = req.url;
-                finalObject.logoUrl = process.params.logoUrl;
-              
-              res.render('./reports/KodeComAnnualInvoice',finalObject);
+                
+                var dbData = app.get("logoUrls");
+                
+                 helper.getUserLogoUrl(dbData,params.username)
+               .then(function(result){
+                   
+                    finalObject.logoUrl = process.params.baseUrl + result.url;
+                    finalObject.DbName = result.name;
+                    res.render('./reports/KodeComAnnualInvoice',finalObject);
+               });
           }
         });
         
         });
         
-        app.get("/api/reports/batchKodeComAnnualInvoice/:yearEnd", passport.authenticationMiddleware(),function(req,res){
+        app.get("/api/reports/batchKodeComAnnualInvoice/:yearEnd/:jobs", passport.authenticationMiddleware(),function(req,res){
             
-            dalHelper.getSubContractorAnnualIds(req.params).then(function(items)
-            {
-                this.generateZipFileName('SubContractorAnnualInvoice').then(function(fileName){
-                    dalHelper.CreateBatchRecord({file: fileName, username: req.user.username}).then(function(result){
-                    
-                        res.send("Ok");
-                        createBatch({url: '/api/reports/KodeComAnnualInvoice/'+'%s'+'/'+req.params.yearEnd+'/pdf', reportName: 'SubContractorAnnualInvoice', zipName: fileName}, items);      
+            var jobIds = JSON.parse(req.params.jobs);
+            var params=req.params;
+            params.username = req.user.username;
+            jobIds.forEach(function(jobId){
+            
+                dalHelper.getJobNameFromId({id:jobId,username:params.username}).then(function(jobNameResult)
+                {
+                    dalHelper.getSubContractorAnnualIds(params, jobId).then(function(items)
+                    {
+                        if (items.length > 0)
+                        {
+                            this.generateZipFileName('SubContractorAnnualInvoice-' + jobNameResult.jobName).then(function(fileName){
+                                dalHelper.CreateBatchRecord({file: fileName, username: req.user.username}).then(function(result){
+                                
+                                    res.send("Ok");
+                                    createBatch({url: '/api/reports/KodeComAnnualInvoice/'+'%s'+'/'+req.params.yearEnd+'/'+jobId+'/pdf', user: req.user.username, reportName: 'SubContractorAnnualInvoice', zipName: fileName}, items);      
+                                });
+                            });
+                        }
+                        else
+                            res.send("No Items");
                     });
                 });
             });
@@ -251,6 +590,7 @@ var setupRoutes=function(app){
         
         app.post("/api/reports/email/contractorWeeklyRemittance/",passport.authenticationMiddleware(),function(req,res){
             var params = req.body;
+            params.username = req.user.username;
             dalHelper.getContractorEmailAddressById(params).then(function(result){
                 
                 params.email = result.email;
@@ -259,18 +599,20 @@ var setupRoutes=function(app){
                 res.send('No email found!');
             
                     //Create url 
-                    var reportUrl = '/api/reports/contractorWeeklyRemittance/'+params.id+'/'+params.paymentDate+'/pdf';
+                    var reportUrl = '/api/reports/contractorWeeklyRemittance/'+params.id+'/'+params.paymentDate+'/'+params.jobId+'/pdf';
                     reportUrl = util.format('%s%s',process.params.baseUrl,reportUrl);
                     console.log(reportUrl);
                     
-                    http.get(reportUrl,function(response){
+                    
+                    this.addUserToUrl(reportUrl, req.user.username).then(function(newUrl){
+                        http.get(newUrl,function(response){
                         var str = "";
                         var completeHtml ="";
                         
                         response.on('data', function (chunk) { str += chunk; });
                         response.on('end', function () {
                             var completeHtml = str;
-                            pdf.render({html:completeHtml},function(err,output){
+                            pdf.render({html:completeHtml, orientation:'landscape'},function(err,output){
                             
                                  output.toBuffer(function(returnedBuffer) {
                                     
@@ -305,6 +647,7 @@ var setupRoutes=function(app){
                             });
                     
                         });
+                    });
                     });
             });
         });
@@ -357,15 +700,29 @@ var setupRoutes=function(app){
         });*/
         
         
-        app.get("/api/reports/batchContractorWeeklyRemittance/:paymentDate", passport.authenticationMiddleware(),function(req,res){
-            
-            dalHelper.getContarctorIdsForPaymentDate(req.params).then(function(items)
-            {
-                this.generateZipFileName('ContractorWeeklyRemittance').then(function(fileName){
-                    dalHelper.CreateBatchRecord({file: fileName, username: req.user.username}).then(function(result){
-                    
-                        res.send("Ok");
-                        createBatch({url: '/api/reports/contractorWeeklyRemittance/'+'%s'+'/'+req.params.paymentDate+'/pdf', reportName: 'ContractorWeeklyRemittance', zipName: fileName}, items);      
+        app.get("/api/reports/batchContractorWeeklyRemittance/:paymentDate/:jobs", passport.authenticationMiddleware(),function(req,res){
+
+            var jobIds = JSON.parse(req.params.jobs);
+            var params=req.params;
+            params.username = req.user.username;
+            jobIds.forEach(function(jobId){
+               
+                dalHelper.getJobNameFromId({id:jobId,username:params.username}).then(function(jobNameResult)
+                {
+                    dalHelper.getContarctorIdsForPaymentDate(params, jobId).then(function(items)
+                    {
+                        if (items.length > 0)
+                        {
+                            this.generateZipFileName('ContractorWeeklyRemittance-' + jobNameResult.jobName ).then(function(fileName){
+                                dalHelper.CreateBatchRecord({file: fileName, username: req.user.username}).then(function(result){
+                                
+                                    res.send("Ok");
+                                    createBatch({url: '/api/reports/contractorWeeklyRemittance/'+'%s'+'/'+req.params.paymentDate+'/'+jobId+'/pdf', user: req.user.username, reportName: 'ContractorWeeklyRemittance', zipName: fileName}, items);      
+                                });
+                            });
+                        }
+                        else
+                            res.send("No Items");
                     });
                 });
             });
@@ -374,29 +731,31 @@ var setupRoutes=function(app){
         
         app.post("/api/reports/email/contractorMonthlyReturn/",passport.authenticationMiddleware(),function(req,res){
             //Body will have {id:id, monthEnd:monthEnd}
-            var vals = req.body;
-            console.log(JSON.stringify(vals));
-            dalHelper.getContractorEmailAddressById(vals).then(
+            
+            var params=req.body;
+            params.username = req.user.username;
+            
+            dalHelper.getContractorEmailAddressById(params).then(
                 
                 function(result){
-                    vals.email = result.email; 
+                    params.email = result.email; 
                     
-                    if (vals.email == "" || vals.email== undefined)
+                    if (params.email == "" || params.email== undefined)
                         return res.send('No email found!');
                 
                     //Create url 
-                    var reportUrl = '/api/reports/contractorMonthlyReturn/'+vals.id+'/'+vals.monthEnd+'/pdf';
+                    var reportUrl = '/api/reports/contractorMonthlyReturn/'+params.id+'/'+params.monthEnd+'/'+params.jobId+'/pdf';
                     reportUrl = util.format('%s%s',process.params.baseUrl,reportUrl);
-                    console.log(reportUrl);
                     
-                    http.get(reportUrl,function(response){
+                    this.addUserToUrl(reportUrl, req.user.username).then(function(newUrl){
+                        http.get(newUrl,function(response){
                         var str = "";
                         var completeHtml ="";
                         
                         response.on('data', function (chunk) { str += chunk; });
                         response.on('end', function () {
                             var completeHtml = str;
-                            pdf.render({html:completeHtml},function(err,output){
+                            pdf.render({html:completeHtml, orientation:'landscape'},function(err,output){
                             
                                  output.toBuffer(function(returnedBuffer) {
                                     
@@ -415,7 +774,7 @@ var setupRoutes=function(app){
                                         }]  ;  
                                         
                                         // call mail helper to send 
-                                        mailer.send({from:'notify@paygenieonline.co.uk',to: vals.email,subject:'Weekly Remittance from PayGenie',message:'Please find Weekly Remittance attached.',attachments:attachments},function(err,info){
+                                        mailer.send({from:'notify@paygenieonline.co.uk',to: params.email,subject:'Monthly Return from PayGenie',message:'Please find Monthly Return attached.',attachments:attachments},function(err,info){
                                                 
                                             fs.unlink(filePath);
                                             
@@ -435,28 +794,45 @@ var setupRoutes=function(app){
                             });
                     
                         });
-                    });           
+                    });  
+                    });
                 });
         });
         
-        app.get("/api/reports/batchContractorMonthlyReturn/:monthEnd", passport.authenticationMiddleware(),function(req,res){
+        app.get("/api/reports/batchContractorMonthlyReturn/:monthEnd/:jobs", passport.authenticationMiddleware(),function(req,res){
             
-            dalHelper.getContarctorIdsForMonthlyReturn(req.params).then(function(items)
-            {
-                this.generateZipFileName('ContractorMonthlyReturn').then(function(fileName){
-                    dalHelper.CreateBatchRecord({file: fileName, username: req.user.username}).then(function(result){
-                    
-                        res.send("Ok");
-                        createBatch({url: '/api/reports/contractorMonthlyReturn/'+'%s'+'/'+req.params.monthEnd+'/pdf', reportName: 'ContractorMonthlyReturn', zipName: fileName}, items);      
+            var jobIds = JSON.parse(req.params.jobs);
+            var params=req.params;
+            params.username = req.user.username;
+            
+            jobIds.forEach(function(jobId){
+            
+                dalHelper.getJobNameFromId({id:jobId,username:params.username}).then(function(jobNameResult)
+                {
+                    dalHelper.getContarctorIdsForMonthlyReturn(params, jobId).then(function(items)
+                    {
+                        if (items.length > 0)
+                        {
+                            this.generateZipFileName('ContractorMonthlyReturn-' + jobNameResult.jobName).then(function(fileName){
+                                dalHelper.CreateBatchRecord({file: fileName, username: req.user.username}).then(function(result){
+                                
+                                    res.send("Ok");
+                                    createBatch({url: '/api/reports/contractorMonthlyReturn/'+'%s'+'/'+req.params.monthEnd+'/'+jobId+'/pdf', user: req.user.username, reportName: 'ContractorMonthlyReturn', zipName: fileName}, items);      
+                                });
+                            });
+                        }
+                        else
+                            res.send("No Items");
                     });
                 });
             });
-                
         });
         
         app.post("/api/reports/email/subContractorMonthlyStatement/",passport.authenticationMiddleware(),function(req,res){
             //Body will have {id:id, startDate:startDate, endDate:endDate}
             var params = req.body;
+              
+            params.username = req.user.username;
             dalHelper.getSubContractorEmailAddressById(params).then(function(result){
                 
                 params.email = result.email;
@@ -465,18 +841,18 @@ var setupRoutes=function(app){
                 res.send('No email found!');
                 
                 //Create url 
-                var reportUrl = '/api/reports/subContractorMonthlyStatement/'+params.id+'/'+params.startDate+'/'+params.endDate +'/pdf';
+                var reportUrl = '/api/reports/subContractorMonthlyStatement/'+params.id+'/'+params.startDate+'/'+params.endDate+'/'+params.jobId +'/pdf';
                 reportUrl = util.format('%s%s',process.params.baseUrl,reportUrl);
-                console.log(reportUrl);
                 
-                http.get(reportUrl,function(response){
+                this.addUserToUrl(reportUrl, req.user.username).then(function(newUrl){
+                    http.get(newUrl,function(response){
                     var str = "";
                     var completeHtml ="";
                     
                     response.on('data', function (chunk) { str += chunk; });
                     response.on('end', function () {
                         var completeHtml = str;
-                        pdf.render({html:completeHtml},function(err,output){
+                        pdf.render({html:completeHtml, orientation:'landscape'},function(err,output){
                         
                              output.toBuffer(function(returnedBuffer) {
                                 
@@ -495,7 +871,7 @@ var setupRoutes=function(app){
                                     }]  ;  
                                     
                                     // call mail helper to send 
-                                    mailer.send({from:'notify@paygenieonline.co.uk',to: params.email,subject:'Weekly Remittance from PayGenie',message:'Please find Weekly Remittance attached.',attachments:attachments},function(err,info){
+                                    mailer.send({from:'notify@paygenieonline.co.uk',to: params.email,subject:'Monthly Statement from PayGenie',message:'Please find Monthly Statement attached.',attachments:attachments},function(err,info){
                                             
                                         fs.unlink(filePath);
                                         
@@ -512,6 +888,7 @@ var setupRoutes=function(app){
                 
                     });
                 });
+                });
                 
             });
         });
@@ -519,7 +896,9 @@ var setupRoutes=function(app){
         app.post("/api/reports/email/KodeComAnnualInvoice/",passport.authenticationMiddleware(),function(req,res){
             //Body will have {id:id, date:date}
             var params = req.body;
-            dalHelper.getContractorEmailAddressById(params).then(function(result){
+              
+            params.username = req.user.username;
+            dalHelper.getSubContractorEmailAddressById(params).then(function(result){
                 
                 params.email = result.email;
                 
@@ -527,18 +906,18 @@ var setupRoutes=function(app){
                 res.send('No email found!');
                 
                 //Create url 
-                var reportUrl = '/api/reports/KodeComAnnualInvoice/'+params.id+'/'+params.date+'/pdf';
+                var reportUrl = '/api/reports/KodeComAnnualInvoice/'+params.id+'/'+params.date+'/'+params.jobId+'/pdf';
                 reportUrl = util.format('%s%s',process.params.baseUrl,reportUrl);
-                console.log(reportUrl);
                 
-                http.get(reportUrl,function(response){
+                this.addUserToUrl(reportUrl, req.user.username).then(function(newUrl){
+                    http.get(newUrl,function(response){
                     var str = "";
                     var completeHtml ="";
                     
                     response.on('data', function (chunk) { str += chunk; });
                     response.on('end', function () {
                         var completeHtml = str;
-                        pdf.render({html:completeHtml},function(err,output){
+                        pdf.render({html:completeHtml, orientation:'landscape'},function(err,output){
                         
                              output.toBuffer(function(returnedBuffer) {
                                 
@@ -557,7 +936,7 @@ var setupRoutes=function(app){
                                     }]  ;  
                                     
                                     // call mail helper to send 
-                                    mailer.send({from:'notify@paygenieonline.co.uk',to: params.email,subject:'Weekly Remittance from PayGenie',message:'Please find Weekly Remittance attached.',attachments:attachments},function(err,info){
+                                    mailer.send({from:'notify@paygenieonline.co.uk',to: params.email,subject:'Annual Invoice from PayGenie',message:'Please find Annual Invoice attached.',attachments:attachments},function(err,info){
                                             
                                         fs.unlink(filePath);
                                         
@@ -574,6 +953,7 @@ var setupRoutes=function(app){
                 
                     });
                 });
+                });
                 
             });
             
@@ -584,7 +964,9 @@ var setupRoutes=function(app){
         app.post("/api/reports/email/subContractorInvoice/",passport.authenticationMiddleware(),function(req,res){
             //Body will have {id:id}
             var params = req.body;
-            dalHelper.getSubContractorEmailAddressById(params).then(function(result){
+              
+            params.username = req.user.username;
+            dalHelper.getSubContractorEmailAddressByPayrollId(params).then(function(result){
                 params.email = result.email;
                 
                 if (params.email == "" || params.email== undefined)
@@ -593,16 +975,16 @@ var setupRoutes=function(app){
                 //Create url 
                 var reportUrl = '/api/reports/subContractorInvoice/'+params.id+'/pdf';
                 reportUrl = util.format('%s%s',process.params.baseUrl,reportUrl);
-                console.log(reportUrl);
                 
-                http.get(reportUrl,function(response){
+                this.addUserToUrl(reportUrl, req.user.username).then(function(newUrl){
+                    http.get(newUrl,function(response){
                     var str = "";
                     var completeHtml ="";
                     
                     response.on('data', function (chunk) { str += chunk; });
                     response.on('end', function () {
                         var completeHtml = str;
-                        pdf.render({html:completeHtml},function(err,output){
+                        pdf.render({html:completeHtml, orientation:'landscape'},function(err,output){
                         
                              output.toBuffer(function(returnedBuffer) {
                                 
@@ -621,7 +1003,7 @@ var setupRoutes=function(app){
                                     }]  ;  
                                     
                                     // call mail helper to send 
-                                    mailer.send({from:'notify@paygenieonline.co.uk',to: params.email,subject:'Weekly Remittance from PayGenie',message:'Please find Weekly Remittance attached.',attachments:attachments},function(err,info){
+                                    mailer.send({from:'notify@paygenieonline.co.uk',to: params.email,subject:'Invoice from PayGenie',message:'Please find Invoice attached.',attachments:attachments},function(err,info){
                                             
                                         fs.unlink(filePath);
                                         
@@ -638,6 +1020,7 @@ var setupRoutes=function(app){
                 
                     });
                 });
+                });
                 
             });
         });
@@ -651,7 +1034,7 @@ var setupRoutes=function(app){
         app.get('/email/',function(req,res){
             
             // render pdf
-                pdf.render({html:'<html><body><h1>hello world</h1></body></html>'},function(err,output){
+                pdf.render({html:'<html><body><h1>hello world</h1></body></html>', orientation:'landscape'},function(err,output){
                     
                          output.toBuffer(function(returnedBuffer) {
                 
@@ -699,6 +1082,24 @@ var setupRoutes=function(app){
                     
         });
         
+        this.addUserToUrl=function(urlstring, user){
+    
+            return new Promise((resolve,reject)=>{
+                try
+                {
+                    var urlObj = url.parse(urlstring);
+                    var queryStr = urlObj.query;
+                    var newUrl = urlObj.href + '?' + queryStr + '&user=' + user;
+            
+                    resolve(newUrl);
+                }
+                catch(err)
+                {
+                    reject(err);
+                }
+            });  
+        }; 
+        
         this.generateZipFileName=function(reportName){
     
             return new Promise((resolve,reject)=>{
@@ -717,7 +1118,7 @@ var setupRoutes=function(app){
                     response.on('end', function () {
                     
                         var completeHtml = str;
-                        var promise = pdf.saveAsPdf({html:completeHtml, fileName:param.reportName+'-'+param.id});
+                        var promise = pdf.saveAsPdf({html:completeHtml, fileName:param.reportName+'-'+param.id, orientation:'landscape'});
                         
                         promise.then(function(attachments){ 
                             files.push(attachments[0]); 
@@ -728,65 +1129,124 @@ var setupRoutes=function(app){
         }
         
         function createBatch(param, items){
+        
+        var attachments = [];
+        createBatchSync(param, items, 0, attachments,function(err, data){
             
-            var files = [];
-            var tasks = [];
-            
-            // create tasks for each report
-            items.forEach(function(item){
-                //Create url 
-                var id = item.id;
-                var reportUrl = util.format(param.url, id);
-                reportUrl = util.format('%s%s',process.params.baseUrl,reportUrl);
+            if (err)
+            {
+                console.log("Batch Failed Error:- " + err);
+                var newParams = {};
+                newParams.zipName = param.zipName;
+                newParams.username = param.user;
+                dalHelper.FailBatchRecord(newParams);
+            }
+            else
+            {
+                console.log('Creating zip');
+                // Create archive
+                var archive  = archiver('zip');
                 
-                tasks.push(function(callback){
-                    generateReportPdf({reportUrl: reportUrl, id:id, reportName: param.reportName}, files, callback);
+                var dir = path.resolve('batches');
+                var output = fs.createWriteStream(path.join(dir,param.zipName));
+                archive.pipe(output);
+                
+                // Add filses to archive
+                for(var i=0; i<attachments.length; i++){
+                var item = attachments[i];
+                console.log('Adding '+ item.name + 'to zip');
+                archive.append(fs.readFileSync(item.path), {name: item.name});
+                }
+                
+                output.on('close', function() {
+                console.log(archive.pointer() + ' total bytes');
+                console.log('archiver has been finalized and the output file descriptor has closed.');
+                
+                var newParams = {};
+                newParams.zipName = param.zipName;
+                newParams.username = param.user;
+                //zip created update db record
+                dalHelper.UpdateBatchRecord(newParams);
+                // delete temp files
+                for(var i=0; i<attachments.length; i++){
+                fs.unlink(attachments[i].path);
+                }
                 });
+                
+                archive.finalize();
+            }
+        });
+        }
+        
+        function createBatchSync(param, items,index,attachments,cb){
+            
+            //Create url 
+            var id = items[index].id;
+            var reportUrl = util.format(param.url, id);
+            reportUrl = util.format('%s%s',process.params.baseUrl,reportUrl);
+            
+            this.addUserToUrl(reportUrl, param.user).then(function(newUrl){
+                
+            var p = generateReportPdf2({reportUrl: newUrl, id:id, reportName: param.reportName});
+            p.then(function(attachment){
+                
+                attachments.push(attachment);
+                index++;
+                
+                if (index === items.length) {
+                    if (typeof cb ==='function')
+                        return cb(null,attachments);
+                }
+                else
+                    createBatchSync(param,items, index, attachments, cb);
             });
             
-            console.log('task count '+ items.length);
-            
-            // run all the tasks
-            async.series(tasks, function (err, results) {
-                
-                if (err) 
-                    console.log("Err: ", err, "\nResults:", results);
-                else {
+            p.catch(function(err){
+               return cb(err,null);
+            });
+            })
+            .catch(function(err){
+               return cb(err,null);
+            });
+        }
+        
+        
+        function generateReportPdf2(param){
+            return new Promise(function(fullfil, reject){
+         try{
+             
+              http.get(param.reportUrl,function(response){
+                    var str = "";
                     
-                    console.log('Creating zip');
-                    // Create archive
-                    var archive  = archiver('zip');
+                    response.on('data', function (chunk) { str += chunk; });
                     
-                    var dir = path.resolve('batches');
-                    var output = fs.createWriteStream(path.join(dir,param.zipName));
-                    archive.pipe(output);
-                    
-                    // Add filses to archive
-                    for(var i=0; i<files.length; i++){
-	                    var item = files[i];
-	                    console.log('Adding '+ item.name + 'to zip');
-	                    archive.append(fs.readFileSync(item.path), {name: item.name});
-                    }
-                    
-                    output.on('close', function() {
-                        console.log(archive.pointer() + ' total bytes');
-                        console.log('archiver has been finalized and the output file descriptor has closed.');
-                        //zip created update db record
-                        dalHelper.UpdateBatchRecord(param);
-                        // delete temp files
-                        for(var i=0; i<files.length; i++){
-    	                    fs.unlink(files[i].path);
-                        }
+                    response.on('end', function () {
+                        
+                        var completeHtml = str;
+                        
+                        var promise = pdf.saveAsPdf({html:completeHtml, fileName:param.reportName+'-'+param.id, orientation:'landscape'});
+                        
+                        promise.then(function(attachments){ 
+                            fullfil(attachments[0]);
+                        });
+                        promise.catch(function(err){ 
+                            reject(err);
+                           
+                        });
+                        
                     });
                     
-                    archive.finalize();
-                }
-            });
-            
-
-            
-            
+                    response.on('error', function(err) {
+                        reject(err);
+                    });
+                });
+            }
+         catch(err){
+             reject(err);
+            } 
+     });                
         }
+        
     };
 
 

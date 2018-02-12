@@ -4,6 +4,8 @@ export class Payroll {
   public c_ID: number;
   public s_ID: number;
   public p_ID: number;
+  public jobId: number;
+  public jobName: string;
   public weekEnding: Date;
   public paymentDate: Date;
   public monthEndingDate: Date;
@@ -21,6 +23,7 @@ export class Payroll {
   public saveSuccess: boolean;
   public recordError: boolean;
   public message: string = "";
+  public subName: string ="";
 
   constructor(){
 

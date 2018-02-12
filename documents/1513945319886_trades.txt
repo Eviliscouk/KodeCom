@@ -1,0 +1,107 @@
+<Trades>
+    <party id="Currenex_X">
+      <typedPartyId>
+        <partyId>Currenex</partyId>
+        <partyIdType>Currenex</partyIdType>
+      </typedPartyId>
+    </party>
+    <party id="int1rabobank_B">
+      <typedPartyId>
+        <partyId>int1rabobank</partyId>
+        <partyIdType>Currenex</partyIdType>
+      </typedPartyId>
+    </party>
+    <party id="int1rabotaker_C">
+      <typedPartyId>
+        <partyId>int1rabotaker</partyId>
+        <partyIdType>Currenex</partyIdType>
+      </typedPartyId>
+    </party>
+    <trade>
+      <tradeHeader>
+        <partyTradeIdentifier>
+          <partyReference href="int1rabotaker_C" />
+          <tradeId />
+        </partyTradeIdentifier>
+        <partyTradeIdentifier>
+          <partyReference href="Currenex_X" />
+          <tradeId>A2017353000V800</tradeId>
+          <utiCode>TGEMMWANRLA2017353000V800</utiCode>
+        </partyTradeIdentifier>
+        <tradeDateTime>2017-12-19T14:42:19.648Z</tradeDateTime>
+        <tradeDate>2017-12-19</tradeDate>
+        <tradeStatus>DONE</tradeStatus>
+        <trader>
+          <partyReference href="int1rabotaker_C" />
+          <userId>i1rabui2</userId>
+        </trader>
+        <trader>
+          <partyReference href="int1rabobank_B" />
+          <userId>i1rabku2</userId>
+        </trader>
+        <subFund>Phillips</subFund>
+        <event>
+          <eventType>NEWT</eventType>
+          <eventDateTime>2017-12-19T14:42:19Z</eventDateTime>
+          <isPossibleDuplicate>true</isPossibleDuplicate>
+        </event>
+        <partyRole>
+          <partyReference href="int1rabotaker_C" />
+          <role>Taker</role>
+        </partyRole>
+        <partyRole>
+          <partyReference href="int1rabobank_B" />
+          <role>Maker</role>
+        </partyRole>
+        <partyRole>
+          <partyReference href="int1rabobank_B" />
+          <role>Downloader</role>
+        </partyRole>
+        <partyRole>
+          <partyReference href="int1rabotaker_C" />
+          <role>Agressor</role>
+        </partyRole>
+      </tradeHeader>
+      <tradeRequest>
+        <requesterPartyReference href="int1rabotaker_C" />
+        <fxRequest>
+          <buySell>SELL</buySell>
+          <specifiedMoney>
+            <currency>GBP</currency>
+            <amount>4373000.00</amount>
+          </specifiedMoney>
+          <againstCurrency>EUR</againstCurrency>
+          <tenor>
+            <period>8M</period>
+          </tenor>
+          <deliveryType>DEL</deliveryType>
+        </fxRequest>
+        <pricingType>REQUEST</pricingType>
+      </tradeRequest>
+      <product>
+        <productType>OR</productType>
+        <fxLeg>
+          <cashFlow1>
+            <currency>EUR</currency>
+            <amount>4969092.31</amount>
+            <buyerPartyReference href="int1rabotaker_C" />
+          </cashFlow1>
+          <cashFlow2>
+            <currency>GBP</currency>
+            <amount>4373000.00</amount>
+            <buyerPartyReference href="int1rabobank_B" />
+          </cashFlow2>
+          <valueDate>2018-08-21</valueDate>
+          <exchangeRate>
+            <currency1>GBP</currency1>
+            <currency2>EUR</currency2>
+            <quoteBasis>currency1percurrency2</quoteBasis>
+            <rate>0.88004000</rate>
+            <spotRate>0.88000000</spotRate>
+            <points>0.00004000</points>
+            <midPoint>0.88002300</midPoint>
+          </exchangeRate>
+        </fxLeg>
+      </product>
+    </trade>
+  </Trades>

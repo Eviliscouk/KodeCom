@@ -48,8 +48,8 @@
     <p>
       <center><small>This communication is for the exclusive use of the addressee and may contain proprietary, confidential or privileged information. If you are not the intended recipient any use, copying, disclosure, dissemination or distribution is strictly prohibited.
       <br /><br />
-	  <strong>KODECOM is the trading name of Kode Compliance Ltd</strong>
-      &copy; KODECOM All Rights Reserved
+	  <strong>@model.DbName is the trading name of @model.DbName Compliance Ltd</strong>
+      &copy; @model.DbName All Rights Reserved
       </small></center>
     </p>
   </div><!--end content-->

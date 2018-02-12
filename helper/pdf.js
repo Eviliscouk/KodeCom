@@ -1,76 +1,91 @@
 (function(renderer){
     var pdf = require('phantom-html2pdf'),
+     AsyncLock = require('async-lock'),
      fs = require('fs'),
-     path = require('path');
+     path = require('path'),
+     lock = new AsyncLock({timeout : 120000});
     
     renderer.render = function(option,cb){
-        
-    var pdfOptions = {
-      html: option.html,
-      paperSize: {
-        format: 'A4',
-        orientation: 'landscape', // portrait
-        delay: 1500,
-      }
-    };
-    console.log('about to convert!')
-        console.log('html = ' +option.html);
-        pdf.convert(pdfOptions, function(err, result) {
-        
-        cb(err,result);
-       
-        
-    });
       
+      console.log('getting pdf lock')
+       lock.acquire("pdfkey", function(){
+        console.log('got pdf lock');   
+        var pdfOptions = { html: option.html, paperSize: { format: 'A4',orientation: 'landscape', delay: 1500} };
+        console.log('about to convert!')
+        
+        renderer.killAllPhantomProcess();
+        
+        pdf.convert(pdfOptions, function(err, result) {
+            cb(err,result);
+        });
+       }).then(function(){
+           pdf
+         console.log('released pdf lock')
+       })
+       .catch(function(err){
+         console.log(err);
+       });
   }
   
-    renderer.saveAsPdf = function(option){
-    var pdfOptions = {
-    html: option.html,
-    paperSize: {
-    format: 'A4',
-    orientation: 'landscape', // portrait
-    delay: 1500,
-    }
-    };
-    
-    console.log('about to convert!');
-    
-    return new Promise(function(fullfil,reject){
   
-          pdf.convert(pdfOptions, function(err, output) {
-            
-              if (err) return reject(err);
+  
+    renderer.saveAsPdf = function(option){
+       
+    return new Promise(function(fullfil,reject){  
               
-              output.toBuffer(function(returnedBuffer) {
+          lock.acquire("pdfkey", function(){
+              
+              var pdfOptions = { html: option.html, paperSize: { format: 'A4',orientation: 'landscape', delay: 1500} };
+          
+              pdf.convert(pdfOptions, function(err, output) {
+                    
+                if (err) 
+                    return reject(err);
+              
+                output.toBuffer(function(returnedBuffer) {
                                   
-              var dir = path.resolve('temp_documents');
-              var dateTimeStr = new Date().getTime().toString();
-              var fileName = option.fileName + '.pdf';//'WeeklyRemittance.pdf';
-              var filePath =path.join(dir, dateTimeStr + '_' + fileName);
+                    var dir = path.resolve('temp_documents');
+                    var dateTimeStr = new Date().getTime().toString();
+                    var fileName = option.fileName + '.pdf';//'WeeklyRemittance.pdf';
+                    var filePath =path.join(dir, dateTimeStr + '_' + fileName);
                
-              fs.writeFile(filePath, returnedBuffer, (err) => {
-                  if (err) return reject(err);
+                    fs.writeFile(filePath, returnedBuffer, (err) => {
+                        if (err) 
+                        {
+                            console.log(err);
+                            return reject(err);
+                        }
                   
-                  var  files= [{
-                  name: fileName,
-                  path: filePath,
-                  //contentType: 'application/pdf'
-                  }]  ;  
+                        var files= [];
+                        files.push({
+                        name: fileName,
+                        path: filePath,
+                        //contentType: 'application/pdf'
+                        });  
                   
-                  return fullfil(files);
+                        return fullfil(files);
                   });
               });    
        
           });
-    
+      })
+      .then(function(){
+        // lock released
+        renderer.killAllPhantomProcess();
+      })
+      .catch(function(err){
+        console.log(err);
+        renderer.killAllPhantomProcess();
+        return reject(err);
+      });
     });
-    
   }
   
-  renderer.testPdf = function(option,cb){
+    renderer.testPdfPromise = function(option,cb){
+      return new Promise(function(fullfil,reject){
+        
+        
       
-      var html1 =`<html>Hello!</html>`;
       var html =` <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
@@ -390,8 +405,28 @@ table.topAndBottom {
     </div>
 </body>
 </html>`
+
+var html3 =`<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+        <html>
+        <head>
+        <style type="text/css" media="all">
+        @media print {
+    footer {page-break-before: always;}
+}
+</style>
+        </head>
+        <body>
+        <h1>page-1</h1>
+        <h1>page-2</h1>
+        <h1>page-3</h1>
+        
+        </body>
+        
+        
+        `;
+
  var pdfOptions = {
-      html: html1,
+      html: html2,
       paperSize: {
         format: 'A4',
         orientation: 'landscape', // portrait
@@ -399,14 +434,49 @@ table.topAndBottom {
       }
     };
   
-    console.log('html = ' + html1);
-    pdf.convert(pdfOptions, function(err, result) {
-        console.log(option.html);
-        cb(err,result);
-       
+    pdf.convert(pdfOptions, function(err, output) {
+      if(err) return reject(err);
+      
+         output.toBuffer(function(returnedBuffer) {
+                                  
+             
+               
+              fs.writeFile('./' + option.filename, returnedBuffer, (err) => {
+                  if(err) return reject(err);
+                  fullfil(option.filename);
+                  
+                  });
+              });    
         
     });
     
-        
+      });
     }
+    
+    
+   renderer.killAllPhantomProcess=function (){
+      
+      const execSync = require('child_process').execSync;
+    //var spawn = require('child_process');
+      console.log('Killing Phantom JS processes');
+      
+    //const subprocess = spawn.spawnSync('sh',['killall', 'phantomjs']);
+    //const subprocess2 = spawn.spawnSync('sh',['killall', 'Phantomjs']);
+    try
+    {
+        var cmd = execSync('killall -s KILL phantomjs', {stdio:[0,1,2]});
+    }catch(err)
+    {
+        console.log('No phantomjs found');
+    }
+    try
+    {
+        var cmd2 = execSync('killall -s KILL Phantomjs', {stdio:[0,1,2]});
+    }catch(err)
+    {
+        console.log('No Phantomjs found');
+    }
+      
+    }
+    
 }(module.exports));

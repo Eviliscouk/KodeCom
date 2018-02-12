@@ -7,6 +7,9 @@ import { SubContractorService } from '../subcontractor.service';
 import { Subscription } from 'rxjs/Subscription';
 
 import {FilterDisplayNamePipe} from '../../shared/filter-displayName.pipe';
+import {FilterJobPipe} from '../../shared/filter-job.pipe';
+import { Job } from '../../shared/job.model';
+
 
 @Component({
   selector: 'app-subcontractor-list',
@@ -18,6 +21,8 @@ export class SubcontractorListComponent implements OnInit {
   subcontractorNames: SubContractorName[] = [];
   private subContractorSub: Subscription;
   public diplayNameFilter: string = "";
+  public jobs : Job[];
+  public jobId : number = 0;
 
   constructor(private subcontractorsService: SubContractorService,
               private router: Router,
@@ -30,6 +35,7 @@ export class SubcontractorListComponent implements OnInit {
         (params: Params) => {
           this.id = +params['id'];
           this.getSubContractorNames();
+          this.subcontractorsService.getContractorJobs(this.id).subscribe(j => {this.jobs = j; this.jobs.unshift(new Job(0, 0,'All', 'Jobs'))});
         }
       );
 

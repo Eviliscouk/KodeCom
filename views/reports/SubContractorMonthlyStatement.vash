@@ -2,26 +2,23 @@
 
 @html.block("main",function(model){
 
-<div id="page">
+<div id="page" class="print">
 <div class="report-url" data-url="@model.url" data-name="@model.title"/>
   <div id="logo"><img src="@model.logoUrl" alt="Kodecom"></div><!--end logo-->
   
   <div id="address">
-    <p>
-	<strong>Sub-Contractor Monthly Statement<br />
-	Contractor Details </strong><br />@model.con_displayName<br />
+   <strong>Sub-Contractor Monthly Statement<br />
+	Contractor Details </strong><br />
+	@model.con_displayName<br />
 	@model.con_address<br />
 	@model.con_town<br />
 	@model.con_county<br />
 	@model.con_postCode<br />
-    <br />
-    Unique Tax Reference: @model.con_utr<br />
-	<br/>
-	<br/>
-	<br/>
-    </p>
+  Unique Tax Reference: @model.con_utr
   </div><!--end address-->
   <br/>
+  <br/>
+
   <div id="content">
   <p >
       <strong>SubContractor Details:</strong><br />
@@ -31,9 +28,10 @@
 	  @model.sub_county<br />
 	  @model.sub_postCode<br />
 	</p>
-    <hr>
+<br />
+<br />
 	<table>
-		<strong>@model.sub_services</strong><br />
+		<strong>Construction Industry Scheme</strong><br />
 		<strong>Statement of payment and deductions for month ending: </strong>@model.monthEnd <br />
 		<strong>SubContractor</strong><br />
 		<br />

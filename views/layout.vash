@@ -34,17 +34,46 @@
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="#">KodeCom</a>
+      @if (model.user){
+       @model.dblist.forEach(function(item){
+            
+              @if(model.user.databaseId == item.id){
+                    
+                    <div class="dropdown">
+          <a href="#" class="dropdown-toggle navbar-brand" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">@item.displayName<span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            
+             @model.dblist.forEach(function(item){
+            
+            
+            @if (model.user){
+              @if(model.user.databaseId == item.id){
+                    <li class="active"><a href="#" data-dbId="@item.id" >@item.displayName</a></li>
+                }
+              else{
+                    <li><a href="#" data-dbId="@item.id">@item.displayName</a></li> 
+               }
+            }
+            else
+             <li><a href="#" data-dbId="@item.id">@item.displayName</a></li>
+            })
+        
+          </ul>
+        </div>
+                }
+        })
+        }
     </div>
 
     <!-- Collect the nav links, forms, and other content for toggling -->
     <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
       <ul class="nav navbar-nav">
-        <li><a href="/">Home<span class="sr-only">(current)</span></a></li>
-        <li><a href="/contact/">Contact</a></li>
-        <li><a href="/about/">About</a></li>
+      
         @if (model.user){
         <li><a href="/logout/">Logout @model.user.username</a></li>
+            @if (model.user.isAdmin==1){
+            <li><a href="/admin/">User Admin</a></li>
+            }
         }
       </ul>
     </div><!-- /.navbar-collapse -->
@@ -64,9 +93,35 @@
 <script type="text/javascript">
 $(document).ready(function(){
 
-$('li>a').on("click",function(){
 
-$(this).css("active");
+$('.dropdown-menu li a').click(function (e) {
+
+    var id = $(this).attr('data-dbId');
+
+   var promise =$.post('/api/database/save/',{databaseId:id})
+.done(function( data ) {
+    console.log( "Data Loaded: " + data );
+    window.location = window.location.origin;
+});
+
+e.preventDefault();
+});
+
+
+$('select.database').change(function(e){
+
+var databseId=($('select.database').find(':selected').data('databaseid'));
+
+var promise =$.post('/api/database/save/',{databaseId:databseId})
+.done(function( data ) {
+    console.log( "Data Loaded: " + data );
+    
+    //window.location = window.location.origin;
+    
+    
+  });
+
+
 
 });
 

@@ -3,6 +3,7 @@ import { Http, Response, RequestOptions, Headers, ResponseContentType } from '@a
 import 'rxjs/Rx';
 import { Contractor } from "./contractor.model";
 import { Note } from '../shared/note.model';
+import { Job } from '../shared/job.model';
 import { Attachment } from '../shared/attachment.model';
 import { ContractorName } from "./contractor-list/contractorName.model";
 import { Subject } from 'rxjs/Subject';
@@ -45,6 +46,10 @@ export class ContractorService {
     return this.http.get(this.getUniqueUrl('/api/contractorNote/get/'+id)).map((res:Response) => res.json());
   }
 
+  getContractorJobs(id: number) : Observable<Job[]> {
+    return this.http.get(this.getUniqueUrl('/api/contractorJob/get/'+id)).map((res:Response) => res.json());
+  }
+
   getContractorAttachments(id: number) : Observable<Attachment[]> {
     return this.http.get(this.getUniqueUrl('/api/contractorAttachments/get/'+id)).map((res:Response) => res.json());
   }
@@ -58,31 +63,29 @@ export class ContractorService {
     //});
   }
 
-  async getContractorWeeklyRemittance(id: number, paymentDate: string) {
-    const response = await this.http.get(this.getUniqueUrl('/api/reports/contractorWeeklyRemittance/'+id+'/'+paymentDate)).toPromise();
+  async getContractorWeeklyRemittance(id: number, paymentDate: string, jobId: number) {
+    const response = await this.http.get(this.getUniqueUrl('/api/reports/contractorWeeklyRemittance/'+id+'/'+paymentDate+'/'+jobId)).toPromise();
     var x=window.open();
     console.log(response.text());
     x.document.open().write(response.text());
     x.document.close();
   }
 
-  async getBatchContractorWeeklyRemittance(paymentDate: string) : Promise<String> {
-    var headers = new Headers();
-    headers.append("Accept", "application/octet-stream");
-    var result = await this.http.get(this.getUniqueUrl('/api/reports/batchContractorWeeklyRemittance/'+paymentDate), { headers: headers, responseType: ResponseContentType.Blob })
-    .toPromise()
-    .then(function(res) { 
-      console.log('Received Zip!');
-      var d = new Date(); 
-      var anchor = document.createElement("a");
-      anchor.download = d.getDate()  + "-" + (d.getMonth()+1) + "-" + d.getFullYear() + " " + d.getHours() + "-" + d.getMinutes() + '-ContractorWeeklyRemittance.zip';
-      anchor.href = URL.createObjectURL(res.blob());
-      anchor.click();
-      return 'Ok';
-    })
-    .catch(() => {console.log("Error retreiving File"); return 'fail';});
+  async getBatchContractorWeeklyRemittance(paymentDate: string, jobIds: string) {
+    var result = await this.http.get(this.getUniqueUrl('/api/reports/batchContractorWeeklyRemittance/'+paymentDate+'/'+jobIds), { headers: this.headers }).toPromise()
+    return result.text();
+  }
 
-    return result;
+  getContractorWeeklyRemittanceText(id: number, paymentDate: string, jobId: number) {
+    window.open(this.root+'/api/reports/contractorWeeklyText/'+id+'/'+paymentDate+'/'+jobId);
+  }
+
+  getContractorData() {
+    window.open(this.root+'/api/reports/contractorData/');
+  }
+
+  getContractorWeeklyRemittanceBanking(id: number, paymentDate: string, jobId: number) {
+    window.open(this.root+'/api/reports/contractorWeeklyBanking/'+id+'/'+paymentDate+'/'+jobId);
   }
 
   createAnchorForFile(url : string, name : string) : any {
@@ -107,40 +110,28 @@ export class ContractorService {
     //});
   }
 
-  async emailContractorWeeklyRemittance(id: number, paymentDate: string) {
-    var obj = {id:id, paymentDate:paymentDate};
+  async emailContractorWeeklyRemittance(id: number, paymentDate: string, jobId: number) {
+    var obj = {id:id, paymentDate:paymentDate, jobId:jobId};
     const response = await this.http.post(this.root+'/api/reports/email/contractorWeeklyRemittance/', obj, { headers: this.headers }).toPromise();
     var result = response.text();
     return result;
   }
 
-  async getContractorMonthlyReturn(id: number, monthEnd: string) {
-    const response = await this.http.get(this.getUniqueUrl('/api/reports/contractorMonthlyReturn/'+id+'/'+monthEnd)).toPromise();
-    var result = response.text();
-    return result;
+  async getContractorMonthlyReturn(id: number, monthEnd: string, jobId: number) {
+    const response = await this.http.get(this.getUniqueUrl('/api/reports/contractorMonthlyReturn/'+id+'/'+monthEnd+'/'+jobId)).toPromise();
+    var x=window.open();
+    console.log(response.text());
+    x.document.open().write(response.text());
+    x.document.close();
   }
 
-  async getBatchContractorMonthlyReturn(monthEnd: string) : Promise<String> {
-    var headers = new Headers();
-    headers.append("Accept", "application/octet-stream");
-    var result = await this.http.get(this.getUniqueUrl('/api/reports/batchContractorMonthlyReturn/'+monthEnd), { headers: headers, responseType: ResponseContentType.Blob })
-    .toPromise()
-    .then(function(res) { 
-      console.log('Received Zip!'); 
-      var d = new Date(); 
-      var anchor = document.createElement("a");
-      anchor.download = d.getDate()  + "-" + (d.getMonth()+1) + "-" + d.getFullYear() + " " + d.getHours() + "-" + d.getMinutes() + '-ContractorMonthlyReturn.zip';
-      anchor.href = URL.createObjectURL(res.blob());
-      anchor.click();
-      return 'Ok';
-    })
-    .catch(() => {console.log("Error retreiving File"); return 'fail';});
-
-    return result;
+  async getBatchContractorMonthlyReturn(monthEnd: string, jobIds: string) {
+    var result = await this.http.get(this.getUniqueUrl('/api/reports/batchContractorMonthlyReturn/'+monthEnd+'/'+jobIds), { headers: this.headers }).toPromise()
+    return result.text();
   }
 
-  async emailContractorMonthlyReturn(id: number, monthEnd: string) {
-    var obj = {id:id, monthEnd:monthEnd};
+  async emailContractorMonthlyReturn(id: number, monthEnd: string, jobId: number) {
+    var obj = {id:id, monthEnd:monthEnd, jobId:jobId};
     const response = await this.http.post(this.root+'/api/reports/email/contractorMonthlyReturn/', obj, { headers: this.headers }).toPromise();
     var result = response.text();
     return result;
@@ -185,6 +176,16 @@ export class ContractorService {
   async addContractorNote(values: string): Promise<string>{ 
 
     const response = await this.http.post(this.root+'/api/contractorNote/save/', values, {
+        headers: this.headers
+      }).toPromise();
+
+      var result = response.text();
+      return result;
+  }
+
+  async addContractorJob(values: string): Promise<string>{ 
+
+    const response = await this.http.post(this.root+'/api/contractorJob/save/', values, {
         headers: this.headers
       }).toPromise();
 

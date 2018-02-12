@@ -11,9 +11,30 @@
 
 @html.block("main",function(model){
 
-<h1>@model.title</h1>
-
-
+<h1>@model.data.length</h1>
+<table border="1" width="100%">
+    @model.users.forEach(function(e){
+    
+    <tr>
+        <td>@e.sale</td><td>@e.vat</td>
+        
+        <td>
+            @{
+	            var vat = e.sale * (e.vat * .01)
+            }
+            @vat
+            </td>
+            
+            <td>
+                @(function(vat){ return model.data.sale - vatook }(vat))
+            </td>
+            
+    </tr>
+    
+    })
+    
+    
+</table>
 })
 
 </div>

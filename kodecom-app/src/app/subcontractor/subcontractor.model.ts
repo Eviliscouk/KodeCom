@@ -16,6 +16,8 @@ export class SubContractor {
   public mobPhone: string;
   public fax: string;
   public email: string;
+  public bankAccount: string;
+  public bankSortCode: string;
   public utr: string;
   public nino: string;
   public companyRegNo: string;
@@ -26,6 +28,8 @@ export class SubContractor {
   public services: string;
   public active: boolean;
   public contractRecd: boolean;
+  public currentJob: number;
+  public currentJobDisplay: string;
   public attachedFiles: Attachment[];
   public attachedNotes: Note[]; 
 

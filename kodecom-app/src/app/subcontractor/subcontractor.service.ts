@@ -3,6 +3,7 @@ import { Http, Response, RequestOptions, Headers, ResponseContentType } from '@a
 import { SubContractor } from "./subcontractor.model";
 import { SubContractorName } from "./subcontractor-list/subcontractorName.model";
 import { Note } from '../shared/note.model';
+import { Job } from '../shared/job.model';
 import { Attachment } from '../shared/attachment.model';
 import 'rxjs/Rx';
 import { Subject } from 'rxjs/Subject';
@@ -51,6 +52,14 @@ export class SubContractorService {
     return this.http.get(this.getUniqueUrl('/api/SubContractorNote/get/'+id)).map((res:Response) => res.json());
   }
 
+  getOpenContractorJobs(id: number) : Observable<Job[]> {
+    return this.http.get(this.getUniqueUrl('/api/contractorJob/getOpen/'+id)).map((res:Response) => res.json());
+  }
+
+  getContractorJobs(id: number) : Observable<Job[]> {
+    return this.http.get(this.getUniqueUrl('/api/contractorJob/get/'+id)).map((res:Response) => res.json());
+  }
+
   getSubContractorAttachments(id: number) : Observable<Attachment[]> {
     return this.http.get(this.getUniqueUrl('/api/subcontractorAttachments/get/'+id)).map((res:Response) => res.json());
   }
@@ -71,6 +80,10 @@ export class SubContractorService {
     //});
   }
 
+  getSubContractorData() {
+    window.open(this.root+'/api/reports/subContractorData/');
+  }
+
   async getInvoice(id: number) {
     const response = await this.http.get(this.getUniqueUrl('/api/reports/subContractorInvoice/'+id)).toPromise();
     var x=window.open();
@@ -86,93 +99,50 @@ export class SubContractorService {
     return result;
   }
   
-async getKodeComAnnualInvoice(id: number, date: string) {
-    const response = await this.http.get(this.getUniqueUrl('/api/reports/KodeComAnnualInvoice/'+id+'/'+date)).toPromise();
+async getKodeComAnnualInvoice(id: number, date: string, jobId: number) {
+    const response = await this.http.get(this.getUniqueUrl('/api/reports/KodeComAnnualInvoice/'+id+'/'+date+'/'+jobId)).toPromise();
     var x=window.open();
     console.log(response.text());
     x.document.open().write(response.text());
     x.document.close();
   }
 
-  async getBatchKodeComAnnualInvoice(date: string) {
-    var headers = new Headers();
-    headers.append("Accept", "application/octet-stream");
-    var result = await this.http.get(this.getUniqueUrl('/api/reports/batchKodeComAnnualInvoice/'+date), { headers: headers, responseType: ResponseContentType.Blob })
-    .timeoutWith(100000000, Observable.throw(new Error('Boom!')))
-    .toPromise()
-    .then(function(res) { 
-      console.log('Received Zip!');
-      var d = new Date(); 
-      var anchor = document.createElement("a");
-      anchor.download = d.getDate()  + "-" + (d.getMonth()+1) + "-" + d.getFullYear() + " " + d.getHours() + "-" + d.getMinutes() + '-SubContractorAnnualInvoice.zip';
-      anchor.href = URL.createObjectURL(res.blob());
-      anchor.click();
-      return 'Ok';
-    })
-    .catch(e => {console.log(e); console.log("Error retreiving File"); return 'fail';});
-
-    return result;
+  async getBatchKodeComAnnualInvoice(date: string, jobIds: string) {
+    var result = await this.http.get(this.getUniqueUrl('/api/reports/batchKodeComAnnualInvoice/'+date+'/'+jobIds), { headers: this.headers }).toPromise()
+    return result.text();
   }
 
-  async emailKodeComAnnualInvoice(id: number, date: string) {
-    var obj = {id:id, date:date};
+  async emailKodeComAnnualInvoice(id: number, date: string, jobId: number) {
+    var obj = {id:id, date:date, jobId:jobId};
     const response = await this.http.post(this.root+'/api/reports/email/KodeComAnnualInvoice/', obj, { headers: this.headers }).toPromise();
     var result = response.text();
     return result;
   }
 
-  async getSubContractorMonthlyStat(id: number, startDate: string, endDate: string) {
+  async getSubContractorMonthlyStat(id: number, startDate: string, endDate: string, jobId: number) {
     console.log('requesting invoice');
-    const response = await this.http.get(this.getUniqueUrl('/api/reports/subContractorMonthlyStatement/'+id+'/'+startDate+'/'+endDate)).toPromise();
+    const response = await this.http.get(this.getUniqueUrl('/api/reports/subContractorMonthlyStatement/'+id+'/'+startDate+'/'+endDate+'/'+jobId)).toPromise();
     var x=window.open();
     console.log(response.text());
     x.document.open().write(response.text());
     x.document.close();
   }
 
-  async getBatchSubContractorMonthlyStat(startDate: string, endDate: string) {
-    var headers = new Headers();
-    headers.append("Accept", "application/octet-stream");
-    var result = await this.http.get(this.getUniqueUrl('/api/reports/batchSubContractorMonthlyStatement/'+startDate+'/'+endDate), { headers: headers, responseType: ResponseContentType.Blob })
-    .toPromise()
-    .then(function(res) { 
-      console.log('Received Zip!');
-      var d = new Date(); 
-      var anchor = document.createElement("a");
-      anchor.download = d.getDate()  + "-" + (d.getMonth()+1) + "-" + d.getFullYear() + " " + d.getHours() + "-" + d.getMinutes() + '-SubContractorMonthlyStatement.zip';
-      anchor.href = URL.createObjectURL(res.blob());
-      anchor.click();
-      return 'Ok';
-    })
-    .catch(() => {console.log("Error retreiving File"); return 'fail';});
-
-    return result;
+  async getBatchSubContractorMonthlyStat(startDate: string, endDate: string, jobIds: string) {
+    var result = await this.http.get(this.getUniqueUrl('/api/reports/batchSubContractorMonthlyStatement/'+startDate+'/'+endDate+'/'+jobIds), { headers: this.headers }).toPromise()
+    return result.text();
   }
 
-  async emailSubContractorMonthlyStat(id: number, startDate: string, endDate: string) {
-    var obj = {id:id, startDate:startDate, endDate:endDate};
+  async emailSubContractorMonthlyStat(id: number, startDate: string, endDate: string, jobId: number) {
+    var obj = {id:id, startDate:startDate, endDate:endDate, jobId:jobId};
     const response = await this.http.post(this.root+'/api/reports/email/subContractorMonthlyStatement/', obj, { headers: this.headers }).toPromise();
     var result = response.text();
     return result;
   }
 
-  async getBatchInvoices(date: string) {
-    var headers = new Headers();
-    headers.append("Accept", "application/octet-stream");
-    var result = await this.http.get(this.getUniqueUrl('/api/reports/batchSubContractorInvoice/'+date), { headers: headers, responseType: ResponseContentType.Blob })
-    .toPromise()
-    .then(function(res) { 
-      console.log('Received Zip!');
-      var d = new Date(); 
-      var anchor = document.createElement("a");
-      anchor.download = d.getDate()  + "-" + (d.getMonth()+1) + "-" + d.getFullYear() + " " + d.getHours() + "-" + d.getMinutes() + '-SubContractorInvoice.zip';
-      anchor.href = URL.createObjectURL(res.blob());
-      anchor.click();
-      return 'Ok';
-    })
-    .catch(() => {console.log("Error retreiving File"); return 'fail';});
-
-    return result;
+  async getBatchInvoices(date: string, jobIds: string) {
+    var result = await this.http.get(this.getUniqueUrl('/api/reports/batchSubContractorInvoice/'+date+'/'+jobIds), { headers: this.headers }).toPromise()
+    return result.text();
   }
 
   async updateSubContractor(values: string): Promise<string>{ 
@@ -214,6 +184,16 @@ async getKodeComAnnualInvoice(id: number, date: string) {
   async addSubContractorNote(values: string): Promise<string>{ 
 
     const response = await this.http.post(this.root+'/api/SubContractorNote/save/', values, {
+        headers: this.headers
+      }).toPromise();
+
+      var result = response.text();
+      return response.text();
+  }
+
+   async delete(id: number): Promise<string>{ 
+    var obj = {id:id};
+    const response = await this.http.post(this.root+'/api/SubContractor/delete/', obj, {
         headers: this.headers
       }).toPromise();
 

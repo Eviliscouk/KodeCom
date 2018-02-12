@@ -2,12 +2,17 @@
   <button class="btn btn-success btn-sm" (click)="onNewSubContractor()">New SubContractor</button>
 <hr>
 <div class="row">
-  <input type="text" id="inputDisplayName" class="form-control" [(ngModel)]="diplayNameFilter"/>
+  <select id="currentJob" class="form-control" placeholder="Job Filter" name="currentJob" [(ngModel)]="jobId" >
+    <option *ngFor="let job of jobs" [value]="job.id">  
+    {{job.jobRef}} - {{job.description}}
+    </option>
+  </select>
+  <input type="text" id="inputDisplayName" placeholder="Name Filter" class="form-control" [(ngModel)]="diplayNameFilter"/>
 </div>
 <div class="row">
   <div class="list-group restricted-height">
       <app-subcontractor-item 
-        *ngFor="let contractorEl of subcontractorNames | filterDisplayNamePipe: diplayNameFilter"
+        *ngFor="let contractorEl of subcontractorNames | filterDisplayNamePipe: diplayNameFilter | filterJobPipe: jobId"
         [subcontractorName]="contractorEl"
         ></app-subcontractor-item>
       </div>

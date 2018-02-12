@@ -44,6 +44,17 @@
                     Surname is required!
                   </div>
                 </div>
+                <label for="currentJob">Assigned Job</label>
+                <select id="currentJob" class="form-control" name="currentJob" ngModel required>
+                  <option *ngFor="let job of jobs" [value]="job.id">  
+                  {{job.jobRef}} - {{job.description}}
+                  </option>
+                </select>
+                <div *ngIf="!f.controls.currentJob?.valid && (f.controls.currentJob?.dirty || f.controls.currentJob?.touched)" class="alert alert-danger">
+                  <div [hidden]="!f.controls.currentJob.errors.required">
+                    CurrentJob is required!
+                  </div>
+                </div>
               </div>
             </div>
       </div>
@@ -184,6 +195,28 @@
             </div>
           </div>
        </div>
+    
+      <div class="panel panel-default">
+        <div class="panel-heading">Bank Details</div>
+          <div class="panel-body">
+            <div class="form-group">
+              <label for="bankAccount">Account No</label>
+              <input type="text" id="bankAccount" class="form-control" name="bankAccount" ngModel minlength="8" maxlength="10" pattern="^[0-9]*$">
+              <div *ngIf="!f.controls.bankAccount?.valid && (f.controls.bankAccount?.dirty || f.controls.bankAccount?.touched)" class="alert alert-danger">
+                  <div [hidden]="!f.controls.bankAccount.errors.minlength && !f.controls.bankAccount.errors.pattern">
+                        Bank Account must be valid!
+                  </div>
+                </div>
+              <label for="bankSortCode">Sort Code</label>
+              <input type="text" id="bankSortCode" class="form-control" name="bankSortCode" ngModel minlength="6" maxlength="6" pattern="^[0-9]*$">
+              <div *ngIf="!f.controls.bankSortCode?.valid && (f.controls.bankSortCode?.dirty || f.controls.bankSortCode?.touched)" class="alert alert-danger">
+                  <div [hidden]="!f.controls.bankAccount.errors.minlength && !f.controls.bankAccount.errors.pattern">
+                        Sort Code must be valid!
+                  </div>
+              </div>
+            </div>
+          </div>
+      </div>
     </div>
   </form>
 

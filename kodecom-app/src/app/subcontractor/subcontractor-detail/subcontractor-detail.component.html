@@ -2,6 +2,7 @@
 <button class="btn btn-primary btn-sm" (click)="onViewPayroll()">View Payroll</button>
 <button class="btn btn-primary btn-sm" (click)="onViewReports()">Reports</button>
 <button class="btn btn-primary btn-sm" (click)="onViewContractor()">View Contractor</button>
+<button class="btn btn-danger btn-sm" (click)="onDelete()">Delete</button>
 <hr>
 <div class="panel-group" *ngIf="subcontractor">
     <div class="panel panel-default">
@@ -34,6 +35,12 @@
             <dd>{{ subcontractor.vatRate }}</dd>
             <dt>Services</dt>
             <dd>{{ subcontractor.services }}</dd>
+            <dt>Current Job</dt>
+            <dd>{{ subcontractor.currentJobDisplay }}</dd>
+            <dt>Account No:</dt>
+            <dd>{{ subcontractor.bankAccount }}</dd>
+            <dt>Sort Code:</dt>
+            <dd>{{ subcontractor.bankSortCode }}</dd>
             <dt>Active</dt>
             <dd>
               <div class="form-check">

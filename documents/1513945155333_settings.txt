@@ -1,0 +1,5 @@
+<!-- FxConnect - AnnaDsb Field Mappings-->
+    <add key="AnnaDsbFxConnectFwdMappings" value="{ 'NotionalCurrency': 'Ccy1',  'OtherNotionalCurrency': 'Ccy2',  'ExpiryDate' : 'MaturityDate' }" />
+    <add key="AnnaDsbFxConnectFwdNdfMappings" value="{ 'NotionalCurrency': 'Ccy1',  'OtherNotionalCurrency': 'Ccy2',  'ExpiryDate' : 'MaturityDate', 'SettlementCurrency' : 'Ccy2' }" />
+    <add key="AnnaDsbFxConnectFwdTemplate" value="{{ 'NotionalCurrency': '{0}', 'ExpiryDate' : '{1:yyyy-MM-dd}', 'OtherNotionalCurrency': '{2}', 'DeliveryType':'PHYS', 'PriceMultiplier':1 }}" />
+    <add key="AnnaDsbFxConnectFwdNdfTemplate" value="{{ 'NotionalCurren:cy' '{0}', 'ExpiryDate' : '{1:yyyy-MM-dd}', 'OtherNotionalCurrency': '{2}', 'SettlementCurrency': '{3}', 'DeliveryType':'CASH', 'PriceMultiplier':1 }}" />

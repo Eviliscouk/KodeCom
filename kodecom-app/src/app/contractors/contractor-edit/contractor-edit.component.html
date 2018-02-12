@@ -22,14 +22,14 @@
                   </div>
                 </div>
                 <label for="firstName">First Name</label>
-                <input type="text" id="firstName" class="form-control" name="firstName" ngModel required>
+                <input type="text" id="firstName" class="form-control" name="firstName" ngModel>
                 <div *ngIf="!f.controls.firstName?.valid && (f.controls.firstName?.dirty || f.controls.firstName?.touched)" class="alert alert-danger">
                   <div [hidden]="!f.controls.firstName.errors.required">
                         First Name is required!
                   </div>
                 </div>
                 <label for="surname">Surname</label>
-                <input type="text" id="surame" class="form-control" name="surname" ngModel required>
+                <input type="text" id="surame" class="form-control" name="surname" ngModel >
                 <div *ngIf="!f.controls.surame?.valid && (f.controls.surame?.dirty || f.controls.surame?.touched)" class="alert alert-danger">
                   <div [hidden]="!f.controls.surame.errors.required">
                         Surname is required!
@@ -46,7 +46,7 @@
             <input type="text" id="address" class="form-control" name="address" ngModel required>
             <div *ngIf="!f.controls.address?.valid && (f.controls.address?.dirty || f.controls.address?.touched)" class="alert alert-danger">
                   <div [hidden]="!f.controls.address.errors.required">
-                        Addreaa is required!
+                        Address is required!
                   </div>
                 </div>
             <label for="town">Town</label>
@@ -120,6 +120,9 @@
                   <div [hidden]="!f.controls.utr.errors.minlength && !f.controls.utr.errors.pattern">
                         UTR must be 10 digits!
                   </div>
+                  <div [hidden]="!f.controls.phone.errors.maxlength">
+                        UTR must be 10 digits!
+                  </div>
                 </div>
               <label for="tlcIns">TLC Ins</label>
               <input type="text" id="tlcIns" class="form-control" name="tlcIns" ngModel required pattern="^\d{0,3}(?:\.\d{1,2})?$">
@@ -132,11 +135,8 @@
                   </div>
               </div>
               <label for="fee">Fee</label>
-              <input type="text" id="fee" class="form-control" name="fee" ngModel required>
+              <input type="text" id="fee" class="form-control" name="fee" ngModel>
               <div *ngIf="!f.controls.fee?.valid && (f.controls.fee?.dirty || f.controls.fee?.touched)" class="alert alert-danger">
-                  <div [hidden]="!f.controls.fee.errors.required">
-                        Fee is required!
-                  </div>
                   <div [hidden]="!f.controls.fee.errors.pattern">
                         Fee Ins must be valid!
                   </div>
@@ -151,6 +151,27 @@
             </div>
           </div>
       </div>
+      <!-- <div class="panel panel-default">
+        <div class="panel-heading">Bank Details</div>
+          <div class="panel-body">
+            <div class="form-group">
+              <label for="bankAccount">Account No</label>
+              <input type="text" id="bankAccount" class="form-control" name="bankAccount" ngModel minlength="8" maxlength="10" pattern="^[0-9]*$">
+              <div *ngIf="!f.controls.bankAccount?.valid && (f.controls.bankAccount?.dirty || f.controls.bankAccount?.touched)" class="alert alert-danger">
+                  <div [hidden]="!f.controls.bankAccount.errors.minlength && !f.controls.bankAccount.errors.pattern">
+                        Bank Account must be valid!
+                  </div>
+                </div>
+              <label for="bankSortCode">Sort Code</label>
+              <input type="text" id="bankSortCode" class="form-control" name="bankSortCode" ngModel minlength="6" maxlength="6" pattern="^[0-9]*$">
+              <div *ngIf="!f.controls.bankSortCode?.valid && (f.controls.bankSortCode?.dirty || f.controls.bankSortCode?.touched)" class="alert alert-danger">
+                  <div [hidden]="!f.controls.bankAccount.errors.minlength && !f.controls.bankAccount.errors.pattern">
+                        Sort Code must be valid!
+                  </div>
+              </div>
+            </div>
+          </div>
+      </div> -->
     </div>
   </form>
 
